@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiDAR SLAM Simulator — Live Demo | Akshay's Robotics Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #0a0e14;
+    --bg-panel:  #10151f;
+    --bg-raised: #161d2b;
+    --line:      #1f2937;
+    --line-lit:  #2a3548;
+    --text:      #e8ecf1;
+    --text-dim:  #7c8a9e;
+    --text-faint:#4a5568;
+    --blue:      #3b82f6;
+    --blue-dim:  #1e3a5f;
+    --green:     #22c55e;
+    --amber:     #f59e0b;
+    --red:       #ef4444;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+
+    /* simulator palette — derived from the pygame app's own C{} dict */
+    --sim-bg:        #0e0e0c;
+    --sim-bg2:       #141412;
+    --sim-grid:      #1c1c19;
+    --sim-wall:      #b4afa0;
+    --sim-room-wall: #dcd7c8;
+    --sim-hit:       #1d9e75;
+    --sim-ray:       #3786dd;
+    --sim-robot:     #ef9f27;
+    --sim-robot-b:   #a06414;
+    --sim-free:      #1e2a1e;
+    --sim-occ:       #10100e;
+    --sim-path:      #ef9f27;
+    --sim-goal:      #e24b4a;
+    --sim-match:      #1dc85a;
+    --sim-calib:     #7f77dd;
+    --sim-build:     #d85a30;
+    --sim-obstacle:  #d85a30;
+    --sim-danger:    #e24b4a;
+    --sim-warn:      #ef9f27;
+    --zone-green:    #50c850;
+    --zone-yellow:   #e6be32;
+    --zone-red:      #dc3c3c;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.6; overflow-x:hidden; }
+  .wrap{max-width:1440px; margin:0 auto; padding:0 24px;}
+
+  nav{ position:sticky; top:0; z-index:50; background:rgba(10,14,20,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:60px;}
+  .brand{font-family:var(--mono); font-weight:700; font-size:14px; color:var(--text-dim); text-decoration:none; display:flex; align-items:center; gap:8px;}
+  .brand:hover{color:var(--text);}
+  .navlinks{display:flex; gap:22px; font-family:var(--mono); font-size:12.5px;}
+  .navlinks a{color:var(--text-dim); text-decoration:none;}
+  .navlinks a:hover{color:var(--blue);}
+
+  .pageheader{padding:32px 0 16px;}
+  .eyebrow{font-family:var(--mono); font-size:11.5px; color:var(--blue); letter-spacing:1.5px;}
+  h1{font-family:var(--mono); font-size:clamp(22px,4vw,30px); font-weight:800; margin-top:8px;}
+  .sub{color:var(--text-dim); margin-top:8px; max-width:760px; font-size:13.5px;}
+  .sub a{color:var(--blue); text-decoration:none;}
+  .sub a:hover{text-decoration:underline;}
+
+  #loading-banner{
+    margin:14px 0; padding:14px 18px; border:1px solid var(--blue-dim);
+    background:rgba(59,130,246,0.06); border-radius:6px;
+    font-family:var(--mono); font-size:13px; color:var(--blue);
+    display:flex; align-items:center; gap:10px;
+  }
+  .spinner{
+    width:14px; height:14px; border:2px solid var(--blue-dim); border-top-color:var(--blue);
+    border-radius:50%; animation:spin 0.8s linear infinite; flex-shrink:0;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ── Sim shell ─────────────────────────────────────────────────────────── */
+  .sim-shell{
+    display:none; flex-direction:column; gap:0;
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:10px;
+    overflow:hidden; margin:14px 0 8px;
+  }
+  .sim-shell.ready{ display:flex; }
+
+  /* Toolbar */
+  .sim-toolbar{
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+    padding:8px 10px; background:var(--bg-raised); border-bottom:1px solid var(--line);
+  }
+  .tb-btn{
+    font-family:var(--mono); font-size:11.5px; font-weight:600; color:var(--text-dim);
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:5px;
+    padding:7px 11px; cursor:pointer; white-space:nowrap; transition:all .12s;
+  }
+  .tb-btn:hover{ border-color:var(--line-lit); color:var(--text); }
+  .tb-btn.active{ color:#0a0e14; font-weight:700; }
+  .tb-sep{ width:1px; height:22px; background:var(--line); margin:0 4px; flex-shrink:0; }
+  .tb-spacer{ flex:1 1 auto; min-width:8px; }
+  .tb-status{
+    font-family:var(--mono); font-size:11px; color:var(--text-faint);
+    padding:0 8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    max-width:260px;
+  }
+
+  /* Body: scene canvas + right panel */
+  .sim-body{ display:flex; flex-wrap:wrap; }
+  .sim-scene-col{ flex:1 1 640px; min-width:320px; position:relative; background:var(--sim-bg); }
+  #simCanvas{ display:block; width:100%; height:auto; cursor:crosshair; }
+
+  .sim-side{
+    flex:0 0 380px; min-width:300px; background:var(--bg-panel);
+    border-left:1px solid var(--line); max-height:820px; overflow-y:auto;
+  }
+  .sim-side::-webkit-scrollbar{ width:7px; }
+  .sim-side::-webkit-scrollbar-thumb{ background:var(--line-lit); border-radius:4px; }
+  .sim-side::-webkit-scrollbar-track{ background:transparent; }
+
+  .side-section{ padding:14px 16px; border-bottom:1px solid var(--line); }
+  .side-h{ font-family:var(--mono); font-size:10.5px; letter-spacing:1.5px; color:var(--text-faint); text-transform:uppercase; margin-bottom:10px; }
+
+  /* distance matrix strip */
+  #distMatrix{ width:100%; height:36px; border-radius:4px; border:1px solid var(--line); display:block; }
+  .matrix-ticks{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:9.5px; color:var(--text-faint); margin-top:3px; }
+
+  /* sliders */
+  .slider-row{ margin-bottom:13px; }
+  .slider-row:last-child{ margin-bottom:0; }
+  .slider-label{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-bottom:5px; }
+  .slider-label b{ color:var(--text); font-weight:600; }
+  input[type="range"].sim-slider{ width:100%; accent-color:var(--blue); height:4px; }
+
+  /* stats */
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:6px 14px; }
+  .stat-line{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:11px; padding:3px 0; border-bottom:1px solid var(--line); }
+  .stat-line .k{ color:var(--text-faint); }
+  .stat-line .v{ color:var(--text); font-weight:600; }
+
+  .match-box{
+    margin-top:10px; padding:10px 12px; border:1px solid var(--sim-match); border-radius:6px;
+    font-family:var(--mono); font-size:11px; color:var(--sim-match); display:none;
+  }
+  .match-box.show{ display:block; }
+  .match-box .mline{ margin-bottom:3px; }
+
+  /* legend */
+  .legend-grid{ display:flex; flex-wrap:wrap; gap:8px 14px; font-family:var(--mono); font-size:10.5px; color:var(--text-dim); }
+  .legend-grid span{ display:flex; align-items:center; gap:5px; }
+  .sw{ width:10px; height:10px; border-radius:2px; display:inline-block; flex-shrink:0; }
+
+  .hint-box{ font-size:11.5px; color:var(--text-faint); line-height:1.6; }
+  .hint-box b{ color:var(--text-dim); }
+
+  /* file io hidden input */
+  #mapFileInput{ display:none; }
+
+  .desktop-note{
+    margin-top:24px; padding:18px 20px; border:1px solid var(--line); border-radius:8px;
+    background:var(--bg-panel); font-size:13.5px; color:var(--text-dim);
+  }
+  .desktop-note b{color:var(--text);}
+  .desktop-note a{color:var(--blue); text-decoration:none;}
+  .desktop-note a:hover{text-decoration:underline;}
+  code.inline{ font-family:var(--mono); background:var(--bg-raised); padding:2px 6px; border-radius:3px; font-size:12.5px; color:#fbbf24; }
+
+  footer{
+    border-top:1px solid var(--line); padding:30px 0; margin-top:20px;
+    font-family:var(--mono); font-size:12px; color:var(--text-faint);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+  footer a{color:var(--text-dim); text-decoration:none;}
+  footer a:hover{color:var(--blue);}
+
+  @media (max-width:980px){
+    .sim-side{ flex:1 1 auto; max-height:none; border-left:none; border-top:1px solid var(--line); }
+  }
+
+  /* Toast notifications for save/load feedback */
+  #toastWrap{ position:fixed; bottom:20px; right:20px; z-index:200; display:flex; flex-direction:column; gap:8px; }
+  .toast{
+    font-family:var(--mono); font-size:12.5px; padding:11px 16px; border-radius:6px;
+    background:var(--bg-raised); border:1px solid var(--line-lit); color:var(--text);
+    box-shadow:0 8px 24px rgba(0,0,0,0.4); opacity:0; transform:translateY(8px);
+    transition:opacity .25s, transform .25s; max-width:320px;
+  }
+  .toast.show{ opacity:1; transform:translateY(0); }
+  .toast.ok{ border-color:var(--green); }
+  .toast.err{ border-color:var(--red); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="../../index.html">← AKSHAY // ROBOTICS LAB</a>
+    <div class="navlinks">
+      <a href="https://github.com/akshaykangude/LiDAR-SLAM-Simulator" target="_blank">Source on GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="pageheader">
+    <div class="eyebrow">PRJ-001 // SENSING · MAPPING</div>
+    <h1>LiDAR SLAM Simulator</h1>
+    <p class="sub">
+      Full 2D LiDAR SLAM simulator — raycasting, occupancy-grid mapping, A* navigation with
+      live obstacle avoidance, proximity safety zones, scan recording, and map save/load —
+      running entirely in your browser via Pyodide. Same Python simulation engine as the
+      <a href="https://github.com/akshaykangude/LiDAR-SLAM-Simulator" target="_blank">desktop pygame app</a>.
+    </p>
+  </div>
+
+  <div id="loading-banner">
+    <span class="spinner"></span>
+    <span id="loading-text">Booting Python runtime in your browser (Pyodide) — first load takes 5–10s…</span>
+  </div>
+
+  <div class="sim-shell" id="simShell">
+    <!-- ── TOOLBAR ── -->
+    <div class="sim-toolbar" id="simToolbar">
+      <button class="tb-btn active" data-tool="NAVIGATE">Navigate</button>
+      <button class="tb-btn" data-tool="ADD_CIRCLE">Circle</button>
+      <button class="tb-btn" data-tool="ADD_BOX">Box</button>
+      <button class="tb-btn" data-tool="ADD_WALL">Wall</button>
+      <button class="tb-btn" data-tool="MOVE_OBJ">Move</button>
+      <button class="tb-btn" data-tool="RESIZE_OBJ">Resize</button>
+      <button class="tb-btn" data-tool="DELETE_OBJ">Delete</button>
+      <button class="tb-btn" data-tool="SET_GOAL">Go To</button>
+      <button class="tb-btn" data-tool="RESIZE_ROOM">Room Size</button>
+      <div class="tb-sep"></div>
+      <button class="tb-btn" id="btnBug2" title="Bug2 reactive navigation: moves along M-line, follows obstacle boundary when blocked, detects unreachable goals">Bug2</button>
+      <button class="tb-btn" id="btnRecord">● Record</button>
+      <button class="tb-btn" id="btnSave">⬇ Save Map</button>
+      <button class="tb-btn" id="btnLoad">⬆ Load Map</button>
+      <button class="tb-btn" id="btnCalib">Calibrate</button>
+      <button class="tb-btn" id="btnClear">Clear Map</button>
+      <div class="tb-spacer"></div>
+      <span class="tb-status" id="tbStatus">Loading…</span>
+    </div>
+
+    <!-- ── BODY ── -->
+    <div class="sim-body">
+      <div class="sim-scene-col">
+        <canvas id="simCanvas" width="860" height="812"></canvas>
+      </div>
+
+      <div class="sim-side">
+        <div class="side-section">
+          <div class="side-h">360° Distance Array</div>
+          <canvas id="distMatrix" width="360" height="36"></canvas>
+          <div class="matrix-ticks"><span>0°</span><span>90°</span><span>180°</span><span>270°</span><span>360°</span></div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-h">Proximity Safety Zones</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text-faint);margin-bottom:10px;line-height:1.6;">
+            Sliders set the zone <b style="color:var(--text-dim)">radius</b>. Diameter = 2× radius.
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">
+              <span style="color:var(--zone-green)">&#9679; Green zone — radius</span>
+              <span style="display:flex;gap:10px;align-items:center;">
+                <span style="font-size:10px;color:var(--text-faint)">⌀ <b id="vProxGreenDia" style="color:var(--zone-green)">6.0 m</b></span>
+                <b id="vProxGreen" style="color:var(--zone-green)">3.0 m</b>
+              </span>
+            </div>
+            <input type="range" class="sim-slider" id="slProxGreen" min="0.5" max="8.0" step="0.1" value="3.0" style="accent-color:var(--zone-green)">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">
+              <span style="color:var(--zone-yellow)">&#9679; Yellow zone — radius</span>
+              <span style="display:flex;gap:10px;align-items:center;">
+                <span style="font-size:10px;color:var(--text-faint)">⌀ <b id="vProxYellowDia" style="color:var(--zone-yellow)">3.0 m</b></span>
+                <b id="vProxYellow" style="color:var(--zone-yellow)">1.5 m</b>
+              </span>
+            </div>
+            <input type="range" class="sim-slider" id="slProxYellow" min="0.3" max="5.0" step="0.1" value="1.5" style="accent-color:var(--zone-yellow)">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label">
+              <span style="color:var(--zone-red)">&#9679; Red zone — radius</span>
+              <span style="display:flex;gap:10px;align-items:center;">
+                <span style="font-size:10px;color:var(--text-faint)">⌀ <b id="vProxRedDia" style="color:var(--zone-red)">1.2 m</b></span>
+                <b id="vProxRed" style="color:var(--zone-red)">0.6 m</b>
+              </span>
+            </div>
+            <input type="range" class="sim-slider" id="slProxRed" min="0.1" max="3.0" step="0.1" value="0.6" style="accent-color:var(--zone-red)">
+          </div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-h">LiDAR &amp; Robot Settings</div>
+          <div class="slider-row">
+            <div class="slider-label"><span>LiDAR range (m)</span><b id="vLidarRange">8.0</b></div>
+            <input type="range" class="sim-slider" id="slLidarRange" min="2" max="15" step="0.1" value="8.0">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span>Rays / scan</span><b id="vLidarRays">360</b></div>
+            <input type="range" class="sim-slider" id="slLidarRays" min="60" max="360" step="1" value="360">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span>FOV (degrees)</span><b id="vFov">360</b></div>
+            <input type="range" class="sim-slider" id="slFov" min="10" max="360" step="1" value="360">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span>Scan Hz</span><b id="vScanHz">10</b></div>
+            <input type="range" class="sim-slider" id="slScanHz" min="1" max="30" step="1" value="10">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span>Robot radius (m)</span><b id="vRobotR">0.25</b></div>
+            <input type="range" class="sim-slider" id="slRobotR" min="0.1" max="1.0" step="0.01" value="0.25">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span>Move speed (m/step)</span><b id="vRobotSpeed">0.08</b></div>
+            <input type="range" class="sim-slider" id="slRobotSpeed" min="0.02" max="0.3" step="0.01" value="0.08">
+          </div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-h">New Object Size</div>
+          <div class="slider-row">
+            <div class="slider-label"><span>Circle radius (m)</span><b id="vObjR">0.50</b></div>
+            <input type="range" class="sim-slider" id="slObjR" min="0.1" max="2.0" step="0.01" value="0.5">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span>Box width (m)</span><b id="vObjW">1.20</b></div>
+            <input type="range" class="sim-slider" id="slObjW" min="0.3" max="4.0" step="0.01" value="1.2">
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span>Box height (m)</span><b id="vObjH">0.80</b></div>
+            <input type="range" class="sim-slider" id="slObjH" min="0.3" max="4.0" step="0.01" value="0.8">
+          </div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-h">Live Stats</div>
+          <div class="stat-grid" id="statGrid"><!-- populated by JS --></div>
+          <div class="match-box" id="matchBox"></div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-h">Legend</div>
+          <div class="legend-grid">
+            <span><span class="sw" style="background:var(--sim-robot)"></span> Robot</span>
+            <span><span class="sw" style="background:var(--sim-hit)"></span> LiDAR hit</span>
+            <span><span class="sw" style="background:var(--sim-free)"></span> Free (mapped)</span>
+            <span><span class="sw" style="background:var(--sim-occ)"></span> Occupied</span>
+            <span><span class="sw" style="background:var(--sim-path)"></span> Planned path</span>
+            <span><span class="sw" style="background:var(--sim-goal)"></span> Goal</span>
+            <span><span class="sw" style="background:var(--sim-build)"></span> Wall (drawn)</span>
+            <span><span class="sw" style="background:var(--sim-match)"></span> Relocalize match</span>
+          </div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-h">Controls</div>
+          <div class="hint-box">
+            <b>Navigate tool:</b> Arrow keys / WASD to move, Q/E to rotate.<br>
+            <b>Circle / Box:</b> click scene to place.<br>
+            <b>Wall:</b> click+drag to draw, right-click to cancel.<br>
+            <b>Move / Resize:</b> click object, then drag.<br>
+            <b>Delete:</b> click object or wall.<br>
+            <b>Go To:</b> click destination — robot path-plans &amp; follows automatically.<br>
+            <b>Room Size:</b> drag orange corner handles.<br>
+            <b>Record</b> → drive around → <b>Save Map</b> downloads a .json file.
+            <b>Load Map</b> restores it (including for Calibrate's pose matching).
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="desktop-note">
+    <b>Want the full desktop version?</b> Same simulation engine, native pygame window.
+    Clone it and run: <code class="inline">pip install pygame numpy</code> then
+    <code class="inline">python lidar_slam_ui.py</code> —
+    <a href="https://github.com/akshaykangude/LiDAR-SLAM-Simulator" target="_blank">get it on GitHub →</a>
+  </div>
+
+  <footer>
+    <span>© 2026 Akshay — Industrial Automation &amp; Robotics</span>
+    <span><a href="../../index.html">← Back to all projects</a></span>
+  </footer>
+</div>
+
+<input type="file" id="mapFileInput" accept=".json">
+<div id="toastWrap"></div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
+<script src="sim-core.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

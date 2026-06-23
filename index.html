@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akshay — Robotics & Automation Lab</title>
+<meta name="description" content="Robotics, SLAM, and industrial automation projects — built and documented by Akshay.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #0a0e14;
+    --bg-panel:  #10151f;
+    --bg-raised: #161d2b;
+    --line:      #1f2937;
+    --line-lit:  #2a3548;
+    --text:      #e8ecf1;
+    --text-dim:  #7c8a9e;
+    --text-faint:#4a5568;
+    --blue:      #3b82f6;
+    --blue-dim:  #1e3a5f;
+    --green:     #22c55e;
+    --amber:     #f59e0b;
+    --red:       #ef4444;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+
+  /* ── background circuit grid ── */
+  .grid-backdrop{
+    position:fixed; inset:0; z-index:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:42px 42px;
+    opacity:0.25;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
+  }
+
+  .wrap{max-width:1080px; margin:0 auto; padding:0 28px; position:relative; z-index:1;}
+
+  /* ── nav ── */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(10,14,20,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:64px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-weight:700; font-size:15px; letter-spacing:0.5px;}
+  .brand .dot{width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2.5s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.4;}}
+  .navlinks{display:flex; gap:28px; font-family:var(--mono); font-size:13px; color:var(--text-dim);}
+  .navlinks a{color:inherit; text-decoration:none; transition:color .15s;}
+  .navlinks a:hover{color:var(--blue);}
+
+  /* ── hero ── */
+  .hero{padding:88px 0 64px; position:relative;}
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:2px; color:var(--blue);
+    display:inline-flex; align-items:center; gap:8px; margin-bottom:20px;
+    border:1px solid var(--blue-dim); padding:5px 12px; border-radius:3px;
+    background:rgba(59,130,246,0.06);
+  }
+  h1{
+    font-family:var(--mono); font-weight:800; font-size:clamp(32px,5vw,52px);
+    letter-spacing:-0.5px; line-height:1.08; max-width:760px;
+  }
+  h1 .hl{color:var(--blue);}
+  .hero p{
+    margin-top:20px; max-width:560px; font-size:16px; color:var(--text-dim);
+  }
+  .hero-stats{
+    display:flex; gap:0; margin-top:40px; border:1px solid var(--line); border-radius:6px; overflow:hidden;
+    max-width:620px;
+  }
+  .hstat{flex:1; padding:16px 20px; border-right:1px solid var(--line);}
+  .hstat:last-child{border-right:none;}
+  .hstat .num{font-family:var(--mono); font-size:24px; font-weight:700; color:var(--text);}
+  .hstat .lbl{font-family:var(--mono); font-size:11px; color:var(--text-faint); letter-spacing:0.5px; margin-top:2px;}
+
+  /* ── section heading ── */
+  .section{padding:56px 0;}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:10px;}
+  .section-title{font-family:var(--mono); font-size:13px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase;}
+  .section-title b{color:var(--text);}
+  .section-line{flex:1; height:1px; background:var(--line); margin:0 20px;}
+
+  /* ── project panel ── */
+  .panels{display:flex; flex-direction:column; gap:16px;}
+  .panel{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:8px;
+    padding:24px 26px; transition: border-color .2s, transform .2s;
+    position:relative; overflow:hidden;
+  }
+  .panel::before{
+    content:''; position:absolute; top:0; left:0; width:3px; height:100%;
+    background:var(--green);
+  }
+  .panel.future::before{ background:var(--text-faint); }
+  .panel:hover{ border-color:var(--line-lit); }
+  .panel-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  .panel-id{font-family:var(--mono); font-size:11px; color:var(--text-faint); letter-spacing:1px; margin-bottom:6px;}
+  .panel-title{font-family:var(--mono); font-size:19px; font-weight:700; display:flex; align-items:center; gap:10px;}
+  .led{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .led.live{background:var(--green); box-shadow:0 0 6px var(--green);}
+  .led.future{background:var(--text-faint);}
+  .panel-desc{color:var(--text-dim); font-size:14px; margin-top:8px; max-width:600px;}
+  .panel-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:14px;}
+  .tag{
+    font-family:var(--mono); font-size:10.5px; padding:3px 9px; border-radius:3px;
+    background:var(--bg-raised); color:var(--text-dim); border:1px solid var(--line);
+  }
+  .panel-actions{display:flex; gap:10px; flex-shrink:0;}
+  .btn{
+    font-family:var(--mono); font-size:12.5px; font-weight:600; padding:9px 16px;
+    border-radius:5px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+    transition: all .15s; white-space:nowrap;
+  }
+  .btn-primary{background:var(--blue); color:#fff;}
+  .btn-primary:hover{background:#2563eb;}
+  .btn-ghost{background:transparent; color:var(--text-dim); border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--line-lit); color:var(--text);}
+  .btn-disabled{background:transparent; color:var(--text-faint); border:1px dashed var(--line); cursor:default;}
+
+  .status-row{
+    display:flex; gap:18px; margin-top:16px; padding-top:16px; border-top:1px solid var(--line);
+    font-family:var(--mono); font-size:11.5px; color:var(--text-faint); flex-wrap:wrap;
+  }
+  .status-row span b{color:var(--text-dim); font-weight:600;}
+
+  /* future panel placeholder card */
+  .panel.future .panel-title{color:var(--text-dim);}
+  .future-slot{
+    border:1px dashed var(--line); border-radius:8px; padding:22px 26px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    color:var(--text-faint); font-family:var(--mono); font-size:13px;
+  }
+
+  /* ── footer ── */
+  footer{
+    border-top:1px solid var(--line); padding:40px 0; margin-top:40px;
+    font-family:var(--mono); font-size:12px; color:var(--text-faint);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  }
+  footer a{color:var(--text-dim); text-decoration:none;}
+  footer a:hover{color:var(--blue);}
+
+  @media (max-width:680px){
+    .hero-stats{flex-direction:column;}
+    .hstat{border-right:none; border-bottom:1px solid var(--line);}
+    .hstat:last-child{border-bottom:none;}
+    .panel-top{flex-direction:column;}
+    .panel-actions{width:100%;}
+    .btn{flex:1; justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-backdrop"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span> AKSHAY // ROBOTICS LAB</div>
+    <div class="navlinks">
+      <a href="#projects">Projects</a>
+      <a href="#upcoming">Upcoming</a>
+      <a href="https://github.com/akshaykangude" target="_blank">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span>●</span> SYSTEM ONLINE</div>
+    <h1>Robotics &amp; automation,<br>built <span class="hl">in the open.</span></h1>
+    <p>
+      Industrial PLC systems, SLAM algorithms, and robotics simulations —
+      documented, runnable, and pushed straight from the lab notebook to GitHub.
+    </p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="num">3</div><div class="lbl">PROJECTS LIVE</div></div>
+      <div class="hstat"><div class="num">7</div><div class="lbl">ALGORITHMS IMPLEMENTED</div></div>
+      <div class="hstat"><div class="num">∞</div><div class="lbl">MORE IN PROGRESS</div></div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="projects">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-title">▸ <b>ACTIVE</b> PROJECTS</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="panels">
+
+      <!-- PROJECT 1 -->
+      <div class="panel">
+        <div class="panel-top">
+          <div>
+            <div class="panel-id">PRJ-002 / SLAM · PATH PLANNING</div>
+            <div class="panel-title"><span class="led live"></span> Path Planning Algorithms</div>
+            <div class="panel-desc">
+              BFS, DFS, Dijkstra, A*, D* Lite, and Potential Field — implemented from scratch
+              with a live in-browser visualizer. Watch each algorithm explore a grid in real time.
+            </div>
+            <div class="panel-tags">
+              <span class="tag">Python</span>
+              <span class="tag">Pygame</span>
+              <span class="tag">Pyodide</span>
+              <span class="tag">SLAM</span>
+              <span class="tag">ADAS</span>
+            </div>
+          </div>
+          <div class="panel-actions">
+            <a class="btn btn-primary" href="projects/path-planning/index.html">▶ Run Live Demo</a>
+            <a class="btn btn-ghost" href="https://github.com/akshaykangude/Path-Planning-Algorithms" target="_blank">Source</a>
+          </div>
+        </div>
+        <div class="status-row">
+          <span><b>7</b> algorithms</span>
+          <span><b>Browser</b> + desktop pygame versions</span>
+          <span><b>MIT</b> licensed</span>
+        </div>
+      </div>
+
+      <!-- PROJECT 2 -->
+      <div class="panel">
+        <div class="panel-top">
+          <div>
+            <div class="panel-id">PRJ-001 / SENSING · MAPPING</div>
+            <div class="panel-title"><span class="led live"></span> LiDAR SLAM Simulator</div>
+            <div class="panel-desc">
+              A feature-rich 2D LiDAR SLAM simulator with raycasting, occupancy-grid mapping,
+              A* navigation with live obstacle avoidance, proximity safety zones, scan recording,
+              and map save/load — full toolbar UI built in pygame/numpy.
+            </div>
+            <div class="panel-tags">
+              <span class="tag">Python</span>
+              <span class="tag">Pygame</span>
+              <span class="tag">NumPy</span>
+              <span class="tag">Pyodide</span>
+              <span class="tag">SLAM</span>
+            </div>
+          </div>
+          <div class="panel-actions">
+            <a class="btn btn-primary" href="projects/lidar-slam/index.html">▶ Run Live Demo</a>
+            <a class="btn btn-ghost" href="https://github.com/akshaykangude/LiDAR-SLAM-Simulator" target="_blank">Source</a>
+          </div>
+        </div>
+        <div class="status-row">
+          <span><b>Browser</b> + desktop pygame versions</span>
+          <span><b>A*</b> navigation algorithm</span>
+          <span><b>Configurable</b> FOV &amp; collision</span>
+        </div>
+      </div>
+
+      <!-- PROJECT 3 -->
+      <div class="panel">
+        <div class="panel-top">
+          <div>
+            <div class="panel-id">PRJ-003 / KINEMATICS · MOTION CONTROL</div>
+            <div class="panel-title"><span class="led live"></span> Robot Arm Simulator</div>
+            <div class="panel-desc">
+              Real-time 3D N-DOF robot arm simulator with Denavit-Hartenberg FK/IK, damped least-squares
+              inverse kinematics, 5 motion profile types (7-segment jerk-limited S-curve, trapezoidal,
+              sinusoidal…), editable segment percentages, live Pos/Vel/Acc graphs, and full JSON
+              robot config — no code changes needed to swap arms.
+            </div>
+            <div class="panel-tags">
+              <span class="tag">Python</span>
+              <span class="tag">Pygame</span>
+              <span class="tag">OpenGL</span>
+              <span class="tag">NumPy</span>
+              <span class="tag">DH Parameters</span>
+              <span class="tag">IK / FK</span>
+              <span class="tag">Motion Profiles</span>
+            </div>
+          </div>
+          <div class="panel-actions">
+            <a class="btn btn-primary" href="projects/robot-arm/index.html">▶ Run Live Demo</a>
+            <a class="btn btn-ghost" href="https://github.com/akshaykangude/Robot_Arm_Simulator" target="_blank">Source</a>
+          </div>
+        </div>
+        <div class="status-row">
+          <span><b>5</b> motion profile types</span>
+          <span><b>3-DOF &amp; 6-DOF</b> example configs</span>
+          <span><b>Levenberg-Marquardt</b> IK solver</span>
+          <span><b>MIT</b> licensed</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="upcoming">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-title">▸ <b>UPCOMING</b> / IN THE QUEUE</div>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="panels">
+      <div class="future-slot">
+        <span>PRJ-004 — Quadruped Gait Generator <span style="color:var(--text-faint)">// trot · crawl · bound gait timing</span></span>
+        <span style="color:var(--amber);">PLANNED</span>
+      </div>
+      <div class="future-slot">
+        <span>PRJ-005 — Siemens S7-1200 PLC Dashboard <span style="color:var(--text-faint)">// Flask · live I/O monitoring</span></span>
+        <span style="color:var(--amber);">PLANNED</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; width:100%;">
+    <span>© 2026 Akshay — Industrial Automation &amp; Robotics</span>
+    <span><a href="https://github.com/akshaykangude" target="_blank">github.com/akshaykangude</a></span>
+  </div>
+</footer>
+
+</body>
+</html>

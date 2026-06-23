@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Path Planning Algorithms — Live Demo | Akshay's Robotics Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #0a0e14;
+    --bg-panel:  #10151f;
+    --bg-raised: #161d2b;
+    --line:      #1f2937;
+    --line-lit:  #2a3548;
+    --text:      #e8ecf1;
+    --text-dim:  #7c8a9e;
+    --text-faint:#4a5568;
+    --blue:      #3b82f6;
+    --blue-dim:  #1e3a5f;
+    --green:     #22c55e;
+    --amber:     #f59e0b;
+    --red:       #ef4444;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+
+    --cell-free:   #141b27;
+    --cell-wall:   #37414f;
+    --cell-start:  #22c55e;
+    --cell-goal:   #ef4444;
+    --cell-open:   #1d4ed8;
+    --cell-closed: #11337f;
+    --cell-path:   #fbbf24;
+    --grid-line:   #1a212e;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.6; }
+  .wrap{max-width:1200px; margin:0 auto; padding:0 24px;}
+
+  nav{ position:sticky; top:0; z-index:50; background:rgba(10,14,20,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:60px;}
+  .brand{font-family:var(--mono); font-weight:700; font-size:14px; color:var(--text-dim); text-decoration:none; display:flex; align-items:center; gap:8px;}
+  .brand:hover{color:var(--text);}
+  .navlinks{display:flex; gap:22px; font-family:var(--mono); font-size:12.5px;}
+  .navlinks a{color:var(--text-dim); text-decoration:none;}
+  .navlinks a:hover{color:var(--blue);}
+
+  .pageheader{padding:36px 0 20px;}
+  .eyebrow{font-family:var(--mono); font-size:11.5px; color:var(--blue); letter-spacing:1.5px;}
+  h1{font-family:var(--mono); font-size:clamp(24px,4vw,32px); font-weight:800; margin-top:8px;}
+  .sub{color:var(--text-dim); margin-top:8px; max-width:680px; font-size:14px;}
+  .sub a{color:var(--blue); text-decoration:none;}
+  .sub a:hover{text-decoration:underline;}
+
+  #loading-banner{
+    margin:16px 0; padding:14px 18px; border:1px solid var(--blue-dim);
+    background:rgba(59,130,246,0.06); border-radius:6px;
+    font-family:var(--mono); font-size:13px; color:var(--blue);
+    display:flex; align-items:center; gap:10px;
+  }
+  #loading-banner.bad{ border-color:var(--red); color:var(--red); background:rgba(239,68,68,0.06); }
+  .spinner{
+    width:14px; height:14px; border:2px solid var(--blue-dim); border-top-color:var(--blue);
+    border-radius:50%; animation:spin 0.8s linear infinite; flex-shrink:0;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* App grid: always laid out (no display:none), just invisible via opacity
+     so canvas width is measurable from frame 1 — fixes the zero-width bug. */
+  .app{
+    display:flex; gap:18px; padding:16px 0 50px; flex-wrap:wrap;
+    opacity:0; pointer-events:none; transition:opacity .25s; min-height:1px;
+  }
+  .app.ready{ opacity:1; pointer-events:auto; }
+
+  .stage{
+    flex:1 1 640px; background:var(--bg-panel); border:1px solid var(--line);
+    border-radius:8px; padding:16px; min-width:300px;
+  }
+  #gridCanvas{ width:100%; height:auto; display:block; border-radius:4px; cursor:crosshair; background:var(--cell-free); }
+  .legend-row{
+    display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; padding-top:14px;
+    border-top:1px solid var(--line); font-family:var(--mono); font-size:11px; color:var(--text-dim);
+  }
+  .legend-row span{display:flex; align-items:center; gap:6px;}
+  .swatch{width:11px; height:11px; border-radius:2px; display:inline-block;}
+
+  /* ── Right panel with RUN / INFO tabs ── */
+  .side{ flex:0 0 380px; min-width:300px; background:var(--bg-panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; }
+
+  .tabbar{ display:flex; border-bottom:1px solid var(--line); flex-shrink:0; }
+  .tabbtn{
+    flex:1; background:var(--bg-panel); border:none; color:var(--text-faint);
+    font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:0.5px;
+    padding:13px 0; cursor:pointer; border-bottom:2px solid transparent; transition:all .15s;
+  }
+  .tabbtn.active{ color:var(--blue); border-bottom-color:var(--blue); background:var(--bg-raised); }
+  .tabbtn:hover:not(.active){ color:var(--text-dim); }
+
+  .tabpane{ display:none; padding:18px; }
+  .tabpane.active{ display:block; }
+
+  .card-h{font-family:var(--mono); font-size:11px; letter-spacing:1.5px; color:var(--text-faint); text-transform:uppercase; margin-bottom:10px;}
+  .card{ margin-bottom:18px; }
+  .card:last-child{ margin-bottom:0; }
+
+  .algo-btn{
+    width:100%; text-align:left; background:var(--bg-raised); border:1px solid var(--line);
+    color:var(--text-dim); font-family:var(--mono); font-size:13px; padding:10px 12px;
+    border-radius:5px; margin-bottom:7px; cursor:pointer; display:flex; align-items:center; gap:10px;
+    transition: all .12s;
+  }
+  .algo-btn:hover{border-color:var(--line-lit); color:var(--text);}
+  .algo-btn.active{background:var(--blue-dim); border-color:var(--blue); color:#fff;}
+  .algo-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+
+  .btn-row{display:flex; gap:8px;}
+  .action-btn{
+    flex:1; font-family:var(--mono); font-size:12.5px; font-weight:600; padding:11px;
+    border-radius:6px; border:none; cursor:pointer; transition:all .15s;
+  }
+  .action-btn.run{background:var(--blue); color:#fff;}
+  .action-btn.run:hover{background:#2563eb;}
+  .action-btn.run:disabled{background:var(--bg-raised); color:var(--text-faint); cursor:not-allowed;}
+  .action-btn.clear{background:var(--bg-raised); color:var(--text-dim); border:1px solid var(--line);}
+  .action-btn.clear:hover{color:var(--text); border-color:var(--line-lit);}
+
+  .speed-row{ margin-top:14px; }
+  .speed-label{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:11.5px; color:var(--text-faint); margin-bottom:6px; }
+  .speed-label b{ color:var(--blue); font-weight:600; }
+  input[type="range"]{ width:100%; accent-color: var(--blue); }
+
+  .stat-line{display:flex; justify-content:space-between; font-family:var(--mono); font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line);}
+  .stat-line:last-child{border-bottom:none;}
+  .stat-line .k{color:var(--text-faint);}
+  .stat-line .v{color:var(--text); font-weight:600;}
+
+  .hint{font-size:12px; color:var(--text-faint); margin-top:10px; line-height:1.6;}
+  .hint b{color:var(--text-dim);}
+
+  .status-pill{
+    font-family:var(--mono); font-size:12px; padding:9px 12px; border-radius:5px;
+    background:var(--bg-raised); border:1px solid var(--line); color:var(--text-dim);
+    margin-top:10px;
+  }
+  .status-pill.ok{border-color:var(--green); color:var(--green);}
+  .status-pill.bad{border-color:var(--red); color:var(--red);}
+  .status-pill.busy{border-color:var(--amber); color:var(--amber);}
+
+  /* ── INFO tab content ── */
+  .info-name{ font-family:var(--mono); font-size:20px; font-weight:800; }
+  .info-full{ font-size:12.5px; color:var(--text-faint); font-style:italic; margin-top:2px; margin-bottom:10px;}
+  .info-pill{
+    display:inline-block; font-family:var(--mono); font-size:10.5px; padding:4px 10px;
+    border-radius:4px; border:1px solid; margin-bottom:16px;
+  }
+  .info-section{ margin-top:16px; }
+  .info-label{ font-family:var(--mono); font-size:10.5px; letter-spacing:1.5px; color:var(--text-faint); text-transform:uppercase; margin-bottom:7px; }
+  .info-body{ font-size:13px; color:var(--text); line-height:1.65; }
+  .info-list{ list-style:none; }
+  .info-list li{ font-size:12.5px; color:var(--text); padding:3px 0 3px 16px; position:relative; line-height:1.5; }
+  .info-list li::before{ content:'•'; position:absolute; left:0; color:var(--text-faint); }
+  .pro-list li::before{ content:'✓'; color:var(--green); font-size:11px; }
+  .con-list li::before{ content:'✗'; color:var(--red); font-size:11px; }
+  .complexity-table{ width:100%; border-collapse:collapse; font-family:var(--mono); font-size:11.5px; margin-top:6px;}
+  .complexity-table td{ padding:6px 4px; border-bottom:1px solid var(--line); color:var(--text-dim); vertical-align:top; }
+  .complexity-table td:first-child{ color:var(--text-faint); white-space:nowrap; padding-right:10px; }
+  .complexity-table td:nth-child(2){ color:var(--amber); font-weight:600; white-space:nowrap; padding-right:10px;}
+  .prop-row{ display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-family:var(--mono); font-size:12px; }
+  .prop-val{ font-weight:700; padding:2px 8px; border-radius:3px; font-size:10.5px; }
+  .prop-val.yes{ background:rgba(34,197,94,0.15); color:var(--green); }
+  .prop-val.no{ background:rgba(239,68,68,0.15); color:var(--red); }
+  .tip-box{
+    margin-top:16px; padding:12px 14px; background:rgba(59,130,246,0.08);
+    border:1px solid var(--blue-dim); border-radius:6px; font-size:12px; color:var(--text-dim); line-height:1.6;
+  }
+  .tip-box b{ color:var(--blue); }
+
+  .desktop-note{
+    margin-top:30px; padding:18px 20px; border:1px solid var(--line); border-radius:8px;
+    background:var(--bg-panel); font-size:13.5px; color:var(--text-dim);
+  }
+  .desktop-note b{color:var(--text);}
+  .desktop-note a{color:var(--blue); text-decoration:none;}
+  .desktop-note a:hover{text-decoration:underline;}
+  code.inline{ font-family:var(--mono); background:var(--bg-raised); padding:2px 6px; border-radius:3px; font-size:12.5px; color:#fbbf24; }
+
+  footer{
+    border-top:1px solid var(--line); padding:30px 0; margin-top:20px;
+    font-family:var(--mono); font-size:12px; color:var(--text-faint);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+  footer a{color:var(--text-dim); text-decoration:none;}
+  footer a:hover{color:var(--blue);}
+
+  @media (max-width:980px){
+    .app{flex-direction:column;}
+    .side{flex:1 1 auto;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="../../index.html">← AKSHAY // ROBOTICS LAB</a>
+    <div class="navlinks">
+      <a href="https://github.com/akshaykangude/Path-Planning-Algorithms" target="_blank">Source on GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="pageheader">
+    <div class="eyebrow">PRJ-002 // SLAM · PATH PLANNING</div>
+    <h1>Path Planning Algorithms</h1>
+    <p class="sub">
+      BFS, DFS, Dijkstra, A* (Manhattan &amp; Euclidean), and Potential Field —
+      running live in your browser via Pyodide (CPython compiled to WebAssembly).
+      The same Python algorithm code from the
+      <a href="https://github.com/akshaykangude/Path-Planning-Algorithms" target="_blank">GitHub repo</a>,
+      executed client-side, no server involved.
+    </p>
+  </div>
+
+  <div id="loading-banner">
+    <span class="spinner"></span>
+    <span id="loading-text">Booting Python runtime in your browser (Pyodide) — first load takes 5–10s…</span>
+  </div>
+
+  <div class="app" id="app">
+    <div class="stage">
+      <canvas id="gridCanvas" width="760" height="520"></canvas>
+      <div class="legend-row">
+        <span><span class="swatch" style="background:var(--cell-start)"></span> Start</span>
+        <span><span class="swatch" style="background:var(--cell-goal)"></span> Goal</span>
+        <span><span class="swatch" style="background:var(--cell-wall)"></span> Wall</span>
+        <span><span class="swatch" style="background:var(--cell-open)"></span> Frontier</span>
+        <span><span class="swatch" style="background:var(--cell-closed)"></span> Visited</span>
+        <span><span class="swatch" style="background:var(--cell-path)"></span> Path</span>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="tabbar">
+        <button class="tabbtn active" data-tab="run">RUN</button>
+        <button class="tabbtn" data-tab="info">INFO</button>
+      </div>
+
+      <!-- ── RUN TAB ── -->
+      <div class="tabpane active" id="tab-run">
+        <div class="card">
+          <div class="card-h">Select Algorithm</div>
+          <button class="algo-btn active" data-algo="bfs"><span class="algo-dot" style="background:#38bdf8"></span> BFS</button>
+          <button class="algo-btn" data-algo="dfs"><span class="algo-dot" style="background:#a78bfa"></span> DFS</button>
+          <button class="algo-btn" data-algo="dijkstra"><span class="algo-dot" style="background:#fbbf24"></span> Dijkstra</button>
+          <button class="algo-btn" data-algo="astar_m"><span class="algo-dot" style="background:#22c55e"></span> A* Manhattan</button>
+          <button class="algo-btn" data-algo="astar_e"><span class="algo-dot" style="background:#14b8a6"></span> A* Euclidean</button>
+          <button class="algo-btn" data-algo="dstar"><span class="algo-dot" style="background:#f97316"></span> D* Lite</button>
+          <button class="algo-btn" data-algo="apf"><span class="algo-dot" style="background:#ec4899"></span> Potential Field</button>
+        </div>
+
+        <div class="card">
+          <div class="card-h">Controls</div>
+          <div class="btn-row">
+            <button class="action-btn run" id="runBtn" disabled>▶ Run</button>
+            <button class="action-btn clear" id="clearBtn">Clear Path</button>
+          </div>
+          <div class="btn-row" style="margin-top:8px;">
+            <button class="action-btn clear" id="resetBtn">Reset Grid</button>
+          </div>
+
+          <div class="speed-row">
+            <div class="speed-label"><span>Animation speed</span> <b id="speedVal">Normal</b></div>
+            <input type="range" id="speedSlider" min="0" max="4" step="1" value="2">
+          </div>
+
+          <div class="hint">
+            <b>Left click + drag</b> — draw walls<br>
+            <b>Right click + drag</b> — erase walls<br>
+            <b>Shift + click</b> — move Start<br>
+            <b>Alt/Opt + click</b> — move Goal
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h">Run Stats</div>
+          <div class="stat-line"><span class="k">Algorithm</span><span class="v" id="statAlgo">BFS</span></div>
+          <div class="stat-line"><span class="k">Cells explored</span><span class="v" id="statExplored">—</span></div>
+          <div class="stat-line"><span class="k">Path length</span><span class="v" id="statPath">—</span></div>
+          <div class="stat-line"><span class="k">Time</span><span class="v" id="statTime">—</span></div>
+          <div class="status-pill" id="statusPill">Loading…</div>
+        </div>
+      </div>
+
+      <!-- ── INFO TAB ── -->
+      <div class="tabpane" id="tab-info">
+        <div id="infoContent"><!-- populated by JS --></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="desktop-note">
+    <b>Want the full desktop version?</b> All 7 algorithms — including D* Lite's
+    live obstacle-replanning demo — also run as a native pygame app with the
+    same INFO panel. Clone it and run:
+    <code class="inline">pip install pygame</code> then
+    <code class="inline">python visualizer.py</code> —
+    <a href="https://github.com/akshaykangude/Path-Planning-Algorithms" target="_blank">get it on GitHub →</a>
+  </div>
+
+  <footer>
+    <span>© 2026 Akshay — Industrial Automation &amp; Robotics</span>
+    <span><a href="../../index.html">← Back to all projects</a></span>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
+<script src="algorithms.js"></script>
+<script src="algo-info.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
