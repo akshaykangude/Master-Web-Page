@@ -40,7 +40,6 @@
       overflow-x: hidden;
     }
 
-    /* ─── GLOBAL SCAN-LINE OVERLAY ─── */
     body::before {
       content: "";
       position: fixed; inset: 0; z-index: 0; pointer-events: none;
@@ -53,7 +52,6 @@
       );
     }
 
-    /* ─── ANIMATED CIRCUIT GRID BACKGROUND ─── */
     .circuit-bg {
       position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
     }
@@ -248,7 +246,7 @@
       font-size: 0.7rem; color: var(--cyan);
     }
 
-    /* ─── SPECS GRID (skills) ─── */
+    /* ─── SPECS GRID ─── */
     .specs-grid {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
       background: var(--border);
@@ -318,10 +316,6 @@
       display: grid; place-items: center;
       overflow: hidden; position: relative;
     }
-    .proj-thumb-vis {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-    }
     .proj-body { padding: 22px; flex: 1; display: flex; flex-direction: column; }
     .proj-id { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.14em; margin-bottom: 10px; }
     .proj-title {
@@ -353,12 +347,9 @@
       background: rgba(255,255,255,0.02); color: var(--muted);
       border-color: var(--border);
     }
-    .proj-link.src:href:hover { color: var(--text); border-color: var(--border2); }
-
-    /* ─── SVG THUMBS ─── */
     .thumb-canvas { width: 100%; height: 100%; }
 
-    /* ─── EXPERIENCE SECTION ─── */
+    /* ─── EXPERIENCE ─── */
     .exp-grid { display: grid; grid-template-columns: 240px 1fr; gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 40px; }
     .exp-tabs { background: var(--panel); }
     .exp-tab {
@@ -390,7 +381,7 @@
     }
     .exp-items li strong { color: var(--text); }
 
-    /* ─── TECH RADAR ─── */
+    /* ─── TECH STACK ─── */
     .tech-cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 40px; }
     .tech-col {
       background: var(--panel); border: 1px solid var(--border);
@@ -444,23 +435,27 @@
     }
     .gal-filter:hover, .gal-filter.active { background: var(--surface); color: var(--cyan); }
     .gal-filter.active { border-right: 2px solid var(--cyan); }
-    .gallery-view { background: var(--panel); }
-    .media-mosaic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; }
+    .gallery-view { background: var(--panel); min-height: 300px; }
+    .media-mosaic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 6px; align-items: start; }
     .media-tile {
-      aspect-ratio: 4/3;
       background: var(--surface);
-      border-radius: 4px; overflow: hidden;
-      display: grid; place-items: center;
+      border-radius: 6px; overflow: hidden;
+      display: block;
       position: relative;
     }
-    .media-tile img, .media-tile video { width: 100%; height: 100%; object-fit: cover; }
+    .media-tile img { width: 100%; height: auto; display: block; }
+    .media-tile video { width: 100%; height: auto; display: block; max-height: 400px; }
+    /* filename overlay — hidden by default, shows on hover */
     .media-tile-label {
       position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(3,7,15,0.7);
-      font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
-      text-align: center; padding: 12px;
+      display: flex; align-items: flex-end; justify-content: flex-start;
+      padding: 8px 10px;
+      background: linear-gradient(to top, rgba(3,7,15,0.75) 0%, transparent 60%);
+      font-family: var(--mono); font-size: 0.64rem; color: rgba(214,238,255,0.6);
+      opacity: 0; transition: opacity 0.2s;
+      pointer-events: none;
     }
+    .media-tile:hover .media-tile-label { opacity: 1; }
 
     /* ─── TIMELINE ─── */
     .timeline-wrap { margin-top: 40px; position: relative; padding-left: 32px; }
@@ -531,7 +526,7 @@
       .gallery-layout { grid-template-columns: 1fr; }
       .gallery-filters { display: flex; overflow-x: auto; }
       .gal-filter { flex-shrink: 0; border-bottom: none; border-right: 1px solid var(--border); }
-      .media-mosaic { grid-template-columns: repeat(2, 1fr); }
+      .media-mosaic { grid-template-columns: repeat(1, 1fr); }
       .tech-cols { grid-template-columns: 1fr 1fr; }
       .nav-links { display: none; }
       .footer-inner { flex-direction: column; gap: 12px; }
@@ -549,13 +544,11 @@
       </pattern>
     </defs>
     <rect width="100%" height="100%" fill="url(#grid)"/>
-    <!-- circuit traces -->
     <path d="M120 180 L300 180 L300 360 L480 360 L480 540" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
     <path d="M600 120 L600 300 L780 300 L780 480 L960 480" fill="none" stroke="#39ff7e" stroke-width="1"/>
     <path d="M900 240 L1080 240 L1080 420 L1260 420" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
     <path d="M180 600 L360 600 L360 780 L540 780" fill="none" stroke="#39ff7e" stroke-width="1"/>
     <path d="M720 600 L900 600 L900 780 L1080 780 L1080 660 L1260 660" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
-    <!-- nodes -->
     <circle cx="300" cy="180" r="4" fill="#00d2ff"/>
     <circle cx="480" cy="360" r="4" fill="#00d2ff"/>
     <circle cx="600" cy="300" r="3" fill="#39ff7e"/>
@@ -577,12 +570,13 @@
       </div>
       <div class="logo-text">
         <strong>Akshay Kangude</strong>
-        <span>M.Tech Robotics · Pavia, Italy</span>
+        <span>MS Robotics · Pavia, Italy</span>
       </div>
     </a>
     <div class="nav-links">
       <a href="#expertise">Expertise</a>
       <a href="#projects">Projects</a>
+      <a href="#academic">Academic</a>
       <a href="#experience">Experience</a>
       <a href="#tech">Tech Stack</a>
       <a href="#gallery">Gallery</a>
@@ -599,7 +593,7 @@
       <div class="hero-left">
         <div class="hero-status"><span class="status-dot"></span>Open to Robotics Roles Globally</div>
         <h1 class="hero-name">Akshay<em>Kangude</em></h1>
-        <p class="hero-spec"><span>M.TECH //</span> Robotics &amp; Mechatronics · University of Pavia</p>
+        <p class="hero-spec"><span>MS //</span> Robotics &amp; Mechatronics · University of Pavia</p>
         <p class="hero-bio">
           Robotics engineer with 3.5+ years building systems that move, see, and think — from 12-DOF quadruped locomotion with MIT impedance control to SLAM-based AMR navigation in live industrial environments. Master's thesis on autonomous patient-analysis robotics with TIAGo + ROS2.
         </p>
@@ -621,7 +615,7 @@
         <div class="stats-body">
           <div class="stat-row">
             <div class="stat-key">degree</div>
-            <div class="stat-val"><strong>M.Tech</strong> Robotics &amp; Mechatronics<br><span style="font-size:0.7rem;color:var(--muted)">96/110 · Univ. of Pavia · 2022-2025</span></div>
+            <div class="stat-val"><strong>MS</strong> Robotics &amp; Mechatronics<br><span style="font-size:0.7rem;color:var(--muted)">96/110 · Univ. of Pavia · 2022-2025</span></div>
           </div>
           <div class="stat-row">
             <div class="stat-key">current</div>
@@ -682,9 +676,9 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
         </div>
         <h4>SLAM &amp; Perception</h4>
-        <p>LiDAR-SLAM map building, Nav2 autonomous navigation, multi-modal sensor fusion: IMU + LiDAR + RGB-D + ToF + Ultrasonic in unified environmental awareness.</p>
+        <p>LiDAR-SLAM map building, Nav2 autonomous navigation, multi-modal sensor fusion. CV-based docking with precision alignment. AMR obstacle detection and proximity safety zones.</p>
         <div class="spec-tags">
-          <span class="spec-tag">ROS2</span><span class="spec-tag">Nav2</span><span class="spec-tag">Point Cloud</span><span class="spec-tag">OpenCV</span>
+          <span class="spec-tag">ROS2</span><span class="spec-tag">Nav2</span><span class="spec-tag">CV Docking</span><span class="spec-tag">OpenCV</span>
         </div>
       </div>
 
@@ -693,9 +687,9 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
         </div>
         <h4>AMR &amp; Industrial</h4>
-        <p>ROS2-based AMR and forklift deployment in live industrial environments. Multi-axis closed-loop control with encoder feedback, drive tuning, real-time sync.</p>
+        <p>ROS2-based AMR and forklift deployment in live industrial environments. Sensor fusion for localisation, CV-based docking, multi-axis closed-loop control with encoder feedback.</p>
         <div class="spec-tags">
-          <span class="spec-tag">EtherCAT</span><span class="spec-tag">CAN bus</span><span class="spec-tag">Motion Profile</span>
+          <span class="spec-tag">EtherCAT</span><span class="spec-tag">CAN bus</span><span class="spec-tag">Sensor Fusion</span><span class="spec-tag">Docking CV</span>
         </div>
       </div>
 
@@ -704,9 +698,9 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <h4>Motion Control</h4>
-        <p>7-segment jerk-limited profiles, trapezoidal, S-curve, and sinusoidal trajectories. VFFS/HFFS machine programming and multi-axis servo commissioning.</p>
+        <p>7-segment jerk-limited profiles, trapezoidal, S-curve, sinusoidal trajectories. VFFS/HFFS machine programming. Servo drive and VFD motor tuning — including Siemens S1500 series drives.</p>
         <div class="spec-tags">
-          <span class="spec-tag">S-Curve</span><span class="spec-tag">Jerk-Limited</span><span class="spec-tag">PLC/IEC</span><span class="spec-tag">Trio MC</span>
+          <span class="spec-tag">S-Curve</span><span class="spec-tag">VFD Tuning</span><span class="spec-tag">S1500 Drives</span><span class="spec-tag">Trio MC</span>
         </div>
       </div>
 
@@ -726,9 +720,9 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         </div>
         <h4>IIoT &amp; SCADA</h4>
-        <p>Distributed real-time monitoring across industrial controllers. Python-based multi-controller comms, FT Optix web HMI, Siemens TIA Portal S7-1200 integration.</p>
+        <p>Distributed real-time monitoring across industrial controllers. Python-based multi-controller comms, FT Optix web HMI, Siemens TIA Portal S7-1200 / S1500 integration.</p>
         <div class="spec-tags">
-          <span class="spec-tag">TIA Portal</span><span class="spec-tag">PROFINET</span><span class="spec-tag">snap7</span><span class="spec-tag">Flask</span>
+          <span class="spec-tag">TIA Portal</span><span class="spec-tag">S7-1200/1500</span><span class="spec-tag">snap7</span><span class="spec-tag">Flask</span>
         </div>
       </div>
 
@@ -750,32 +744,25 @@
         <div class="proj-thumb">
           <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
             <rect width="320" height="180" fill="#0c1627"/>
-            <!-- grid -->
             <defs>
               <pattern id="pg" width="20" height="20" patternUnits="userSpaceOnUse">
                 <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0,210,255,0.06)" stroke-width="0.5"/>
               </pattern>
             </defs>
             <rect width="320" height="180" fill="url(#pg)"/>
-            <!-- walls -->
             <rect x="80" y="40" width="20" height="80" fill="rgba(0,210,255,0.15)" rx="2"/>
             <rect x="160" y="60" width="20" height="80" fill="rgba(0,210,255,0.15)" rx="2"/>
             <rect x="220" y="20" width="20" height="60" fill="rgba(0,210,255,0.15)" rx="2"/>
-            <!-- A* path -->
             <polyline points="20,160 40,140 60,120 100,100 120,80 140,60 180,40 200,40 220,40 260,40 280,40 280,80 280,120 280,140" fill="none" stroke="#39ff7e" stroke-width="2" stroke-dasharray="4,2" opacity="0.9"/>
-            <!-- explored nodes -->
             <circle cx="40" cy="140" r="3" fill="rgba(0,210,255,0.4)"/>
             <circle cx="60" cy="120" r="3" fill="rgba(0,210,255,0.4)"/>
             <circle cx="100" cy="100" r="3" fill="rgba(0,210,255,0.4)"/>
             <circle cx="120" cy="80" r="3" fill="rgba(0,210,255,0.4)"/>
             <circle cx="140" cy="60" r="3" fill="rgba(0,210,255,0.4)"/>
-            <!-- start -->
             <circle cx="20" cy="160" r="6" fill="none" stroke="#00d2ff" stroke-width="2"/>
             <circle cx="20" cy="160" r="3" fill="#00d2ff"/>
-            <!-- goal -->
             <circle cx="280" cy="140" r="6" fill="none" stroke="#39ff7e" stroke-width="2"/>
             <circle cx="280" cy="140" r="3" fill="#39ff7e"/>
-            <!-- label -->
             <text x="10" y="16" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="9">A* · DIJKSTRA · RRT*</text>
           </svg>
         </div>
@@ -801,31 +788,25 @@
         <div class="proj-thumb">
           <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
             <rect width="320" height="180" fill="#0c1627"/>
-            <!-- occupancy grid -->
             <defs>
               <pattern id="occ" width="8" height="8" patternUnits="userSpaceOnUse">
                 <rect width="8" height="8" fill="none" stroke="rgba(0,210,255,0.04)" stroke-width="0.5"/>
               </pattern>
             </defs>
             <rect width="320" height="180" fill="url(#occ)"/>
-            <!-- mapped walls -->
             <rect x="60" y="30" width="8" height="100" fill="rgba(0,210,255,0.5)" rx="1"/>
             <rect x="60" y="30" width="180" height="8" fill="rgba(0,210,255,0.5)" rx="1"/>
             <rect x="240" y="30" width="8" height="80" fill="rgba(0,210,255,0.5)" rx="1"/>
             <rect x="120" y="80" width="60" height="8" fill="rgba(0,210,255,0.4)" rx="1"/>
-            <!-- LiDAR beams -->
             <line x1="160" y1="120" x2="60" y2="60" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
             <line x1="160" y1="120" x2="80" y2="30" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
             <line x1="160" y1="120" x2="160" y2="30" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
             <line x1="160" y1="120" x2="240" y2="60" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
             <line x1="160" y1="120" x2="240" y2="100" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
             <line x1="160" y1="120" x2="200" y2="150" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
-            <!-- robot body -->
             <circle cx="160" cy="120" r="14" fill="rgba(0,210,255,0.08)" stroke="#00d2ff" stroke-width="1.5"/>
             <circle cx="160" cy="120" r="5" fill="#00d2ff" opacity="0.9"/>
-            <!-- direction -->
             <line x1="160" y1="120" x2="160" y2="100" stroke="#39ff7e" stroke-width="1.5"/>
-            <!-- path history -->
             <polyline points="100,150 120,140 140,130 160,120" fill="none" stroke="rgba(57,255,126,0.35)" stroke-width="1.5" stroke-dasharray="3,2"/>
             <text x="10" y="16" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="9">LIDAR SLAM · BUG2 · OCCUPANCY GRID</text>
           </svg>
@@ -852,34 +833,24 @@
         <div class="proj-thumb">
           <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
             <rect width="320" height="180" fill="#0c1627"/>
-            <!-- coordinate axes -->
             <line x1="30" y1="150" x2="80" y2="150" stroke="rgba(255,80,80,0.5)" stroke-width="1.5"/>
             <line x1="30" y1="150" x2="30" y2="100" stroke="rgba(80,255,80,0.5)" stroke-width="1.5"/>
             <text x="83" y="154" fill="rgba(255,80,80,0.6)" font-size="10" font-family="monospace">X</text>
             <text x="22" y="97" fill="rgba(80,255,80,0.6)" font-size="10" font-family="monospace">Z</text>
-            <!-- base -->
             <rect x="145" y="152" width="30" height="14" fill="rgba(0,210,255,0.3)" rx="2"/>
-            <!-- link 1 -->
             <line x1="160" y1="152" x2="130" y2="120" stroke="#00d2ff" stroke-width="4" stroke-linecap="round"/>
             <circle cx="160" cy="152" r="7" fill="none" stroke="#00d2ff" stroke-width="2"/>
-            <!-- link 2 -->
             <line x1="130" y1="120" x2="120" y2="80" stroke="#00d2ff" stroke-width="4" stroke-linecap="round"/>
             <circle cx="130" cy="120" r="6" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
-            <!-- link 3 -->
             <line x1="120" y1="80" x2="160" y2="55" stroke="#00d2ff" stroke-width="3" stroke-linecap="round"/>
             <circle cx="120" cy="80" r="5" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
-            <!-- link 4 -->
             <line x1="160" y1="55" x2="195" y2="40" stroke="#00d2ff" stroke-width="2.5" stroke-linecap="round"/>
             <circle cx="160" cy="55" r="4" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
-            <!-- end effector -->
             <line x1="195" y1="40" x2="205" y2="32" stroke="#39ff7e" stroke-width="2"/>
             <line x1="195" y1="40" x2="205" y2="48" stroke="#39ff7e" stroke-width="2"/>
             <circle cx="195" cy="40" r="5" fill="rgba(57,255,126,0.3)" stroke="#39ff7e" stroke-width="1.5"/>
-            <!-- trajectory arc -->
             <path d="M 195 40 Q 240 20 260 60 Q 270 90 250 110" fill="none" stroke="rgba(57,255,126,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
-            <!-- DH labels -->
             <text x="220" y="16" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="9">FK / IK · DH PARAMS</text>
-            <!-- joint labels -->
             <text x="165" y="158" fill="rgba(0,210,255,0.4)" font-family="monospace" font-size="7">J1</text>
             <text x="135" y="118" fill="rgba(0,210,255,0.4)" font-family="monospace" font-size="7">J2</text>
             <text x="125" y="78" fill="rgba(0,210,255,0.4)" font-family="monospace" font-size="7">J3</text>
@@ -907,7 +878,287 @@
   </div>
 </section>
 
-<!-- ─── EXPERIENCE ─── -->
+<!-- ─── ACADEMIC PROJECTS ─── -->
+<section id="academic">
+  <div class="wrap">
+    <div class="sec-label">Academic &amp; Personal Projects</div>
+    <h2 class="sec-title">Research &amp; Builds</h2>
+    <p class="sec-sub">Standalone projects developed during MS and independently — from simulation tools to embedded hardware systems.</p>
+
+    <div class="projects-grid">
+
+      <article class="proj-card">
+        <div class="proj-thumb">
+          <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+            <rect width="320" height="180" fill="#0c1627"/>
+            <!-- body -->
+            <rect x="110" y="70" width="100" height="50" rx="8" fill="rgba(0,210,255,0.12)" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- front-left leg -->
+            <line x1="120" y1="120" x2="100" y2="140" stroke="#00d2ff" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="100" y1="140" x2="82"  y2="165" stroke="#39ff7e" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="100" cy="140" r="4" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- front-right leg -->
+            <line x1="200" y1="120" x2="218" y2="140" stroke="#00d2ff" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="218" y1="140" x2="234" y2="165" stroke="#39ff7e" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="218" cy="140" r="4" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- rear-left leg -->
+            <line x1="120" y1="70" x2="100" y2="48" stroke="#00d2ff" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="100" y1="48" x2="82"  y2="24" stroke="#39ff7e" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="100" cy="48" r="4" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- rear-right leg -->
+            <line x1="200" y1="70" x2="218" y2="48" stroke="#00d2ff" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="218" y1="48" x2="234" y2="24" stroke="#39ff7e" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="218" cy="48" r="4" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- foot contacts -->
+            <circle cx="82"  cy="165" r="4" fill="#39ff7e" opacity="0.8"/>
+            <circle cx="234" cy="165" r="4" fill="#39ff7e" opacity="0.8"/>
+            <circle cx="82"  cy="24"  r="4" fill="rgba(57,255,126,0.4)"/>
+            <circle cx="234" cy="24"  r="4" fill="rgba(57,255,126,0.4)"/>
+            <!-- IMU indicator -->
+            <circle cx="160" cy="95" r="6" fill="rgba(255,183,0,0.3)" stroke="#ffb700" stroke-width="1.5"/>
+            <text x="168" y="99" fill="rgba(255,183,0,0.7)" font-family="monospace" font-size="7">IMU</text>
+            <text x="8" y="16" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="9">12-DOF · 5-BAR LINKAGE · IK/FK</text>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-id">ACD-001 / Legged Robotics</div>
+          <h3 class="proj-title">Quadruped 3D Kinematics</h3>
+          <p class="proj-desc">3D animated 12-DOF quadruped with 5-bar linkage leg geometry. Sagittal XZ kinematics, Z-axis K/H pivot, Y-axis C-carrier offset. FK/IK validated against analytical solution in matplotlib.</p>
+          <div class="proj-chips">
+            <span class="proj-chip">Python</span>
+            <span class="proj-chip">matplotlib</span>
+            <span class="proj-chip">NumPy</span>
+            <span class="proj-chip">5-Bar Linkage</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- MS THESIS — PAL TIAGo Neurorehabilitation -->
+      <article class="proj-card">
+        <div class="proj-thumb">
+          <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+            <rect width="320" height="180" fill="#0c1627"/>
+            <!-- hospital room grid -->
+            <defs>
+              <pattern id="hg" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(0,210,255,0.04)" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="320" height="180" fill="url(#hg)"/>
+            <!-- TIAGo robot body -->
+            <rect x="128" y="88" width="64" height="68" rx="10" fill="rgba(0,210,255,0.08)" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- head -->
+            <rect x="136" y="60" width="48" height="30" rx="8" fill="rgba(0,210,255,0.1)" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- stereo cameras -->
+            <circle cx="150" cy="75" r="5" fill="rgba(0,210,255,0.25)" stroke="#00d2ff" stroke-width="1"/>
+            <circle cx="170" cy="75" r="5" fill="rgba(0,210,255,0.25)" stroke="#00d2ff" stroke-width="1"/>
+            <!-- arm -->
+            <line x1="192" y1="105" x2="232" y2="92" stroke="#00d2ff" stroke-width="3" stroke-linecap="round"/>
+            <line x1="232" y1="92"  x2="252" y2="112" stroke="#39ff7e" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="232" cy="92" r="5" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- mobile base wheels -->
+            <ellipse cx="146" cy="158" rx="13" ry="6" fill="rgba(0,210,255,0.12)" stroke="rgba(0,210,255,0.3)" stroke-width="1"/>
+            <ellipse cx="174" cy="158" rx="13" ry="6" fill="rgba(0,210,255,0.12)" stroke="rgba(0,210,255,0.3)" stroke-width="1"/>
+            <!-- Nav2 path to patient -->
+            <polyline points="48,158 68,138 90,120 112,108 128,105" fill="none" stroke="rgba(57,255,126,0.4)" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <circle cx="48" cy="158" r="4" fill="rgba(57,255,126,0.5)"/>
+            <!-- patient detection box -->
+            <rect x="242" y="68" width="60" height="72" rx="3" fill="rgba(57,255,126,0.04)" stroke="rgba(57,255,126,0.4)" stroke-width="1" stroke-dasharray="3,2"/>
+            <text x="250" y="86"  fill="rgba(57,255,126,0.7)" font-family="monospace" font-size="7">PATIENT</text>
+            <text x="252" y="98"  fill="rgba(57,255,126,0.6)" font-family="monospace" font-size="6">FACE TRACK</text>
+            <text x="252" y="110" fill="rgba(57,255,126,0.6)" font-family="monospace" font-size="6">POSTURE OK</text>
+            <text x="252" y="122" fill="rgba(57,255,126,0.6)" font-family="monospace" font-size="6">SPEECH REC</text>
+            <!-- score badge -->
+            <rect x="8" y="152" width="62" height="20" rx="3" fill="rgba(57,255,126,0.1)" stroke="rgba(57,255,126,0.3)" stroke-width="1"/>
+            <text x="14" y="165" fill="#39ff7e" font-family="monospace" font-size="8">96 / 110</text>
+            <text x="8" y="16" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="9">PAL TIAGo · ROS2 · NEUROREHAB · PAVIA</text>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-id">ACD-002 / MS Thesis · Univ. of Pavia · 2024-2025</div>
+          <h3 class="proj-title">PAL TIAGo — Neurorehabilitation Robot</h3>
+          <p class="proj-desc">MS thesis on socially assistive robotics for hemispheric brain damage recovery. Built a modular ROS2 rehabilitation framework on the PAL Robotics TIAGo platform — integrating speech recognition, facial expression tracking, body posture analysis, autonomous Nav2 navigation, and trajectory-controlled arm exercises. Therapy routines adapt in real time to patient response. Validated in a Living Lab at University of Pavia. Scored 96/110.</p>
+          <div class="proj-chips">
+            <span class="proj-chip">ROS2</span>
+            <span class="proj-chip">Nav2</span>
+            <span class="proj-chip">OpenCV</span>
+            <span class="proj-chip">Speech Recog.</span>
+            <span class="proj-chip">Gazebo</span>
+            <span class="proj-chip">Living Lab</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="proj-card">
+        <div class="proj-thumb">
+          <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+            <rect width="320" height="180" fill="#0c1627"/>
+            <!-- dashboard frame -->
+            <rect x="20" y="20" width="280" height="145" rx="6" fill="rgba(0,210,255,0.03)" stroke="rgba(0,210,255,0.2)" stroke-width="1"/>
+            <!-- top bar -->
+            <rect x="20" y="20" width="280" height="22" rx="6" fill="rgba(0,210,255,0.08)"/>
+            <circle cx="36" cy="31" r="4" fill="#ff5f56"/>
+            <circle cx="50" cy="31" r="4" fill="#ffbd2e"/>
+            <circle cx="64" cy="31" r="4" fill="#27c93f"/>
+            <text x="80" y="35" fill="rgba(0,210,255,0.6)" font-family="monospace" font-size="8">S7-1200 · LIVE DASHBOARD</text>
+            <!-- I/O rows -->
+            <rect x="32" y="52" width="8" height="8" rx="2" fill="#39ff7e"/>
+            <rect x="32" y="66" width="8" height="8" rx="2" fill="#39ff7e"/>
+            <rect x="32" y="80" width="8" height="8" rx="2" fill="rgba(57,255,126,0.2)" stroke="rgba(57,255,126,0.4)" stroke-width="1"/>
+            <rect x="32" y="94" width="8" height="8" rx="2" fill="#39ff7e"/>
+            <text x="46" y="60" fill="rgba(214,238,255,0.7)" font-family="monospace" font-size="7">DI_0.0  ON</text>
+            <text x="46" y="74" fill="rgba(214,238,255,0.7)" font-family="monospace" font-size="7">DI_0.1  ON</text>
+            <text x="46" y="88" fill="rgba(90,122,154,0.8)" font-family="monospace" font-size="7">DI_0.2  OFF</text>
+            <text x="46" y="102" fill="rgba(214,238,255,0.7)" font-family="monospace" font-size="7">DI_0.3  ON</text>
+            <!-- analog bar -->
+            <rect x="32" y="116" width="120" height="6" rx="3" fill="rgba(255,255,255,0.06)"/>
+            <rect x="32" y="116" width="84"  height="6" rx="3" fill="#ffb700"/>
+            <text x="160" y="122" fill="rgba(255,183,0,0.8)" font-family="monospace" font-size="7">AI: 3.42 V</text>
+            <!-- mode badge -->
+            <rect x="200" y="50" width="90" height="22" rx="4" fill="rgba(57,255,126,0.1)" stroke="rgba(57,255,126,0.3)" stroke-width="1"/>
+            <text x="212" y="65" fill="#39ff7e" font-family="monospace" font-size="8">AUTO MODE</text>
+            <!-- websocket indicator -->
+            <circle cx="208" cy="103" r="4" fill="#39ff7e" opacity="0.9"/>
+            <text x="218" y="107" fill="rgba(57,255,126,0.7)" font-family="monospace" font-size="7">WebSocket LIVE</text>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-id">ACD-003 / IIoT · SCADA</div>
+          <h3 class="proj-title">Siemens PLC Dashboard</h3>
+          <p class="proj-desc">Real-time web dashboard for Siemens S7-1200 via Python Flask + snap7. Digital I/O monitoring and control, analog inputs, 4-mode machine state, bypass/force panel, dark-theme industrial UI.</p>
+          <div class="proj-chips">
+            <span class="proj-chip">Python / Flask</span>
+            <span class="proj-chip">snap7</span>
+            <span class="proj-chip">WebSocket</span>
+            <span class="proj-chip">S7-1200</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="proj-card">
+        <div class="proj-thumb">
+          <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+            <rect width="320" height="180" fill="#0c1627"/>
+            <!-- motion profile graph -->
+            <line x1="30" y1="150" x2="300" y2="150" stroke="rgba(0,210,255,0.2)" stroke-width="1"/>
+            <line x1="30" y1="20"  x2="30"  y2="150" stroke="rgba(0,210,255,0.2)" stroke-width="1"/>
+            <!-- velocity trapezoid -->
+            <polyline points="30,150 70,60 140,60 200,150" fill="none" stroke="#00d2ff" stroke-width="2"/>
+            <polygon points="30,150 70,60 140,60 200,150" fill="rgba(0,210,255,0.06)"/>
+            <!-- acceleration curve -->
+            <polyline points="30,150 50,40 70,100 140,100 170,40 200,150" fill="none" stroke="#ffb700" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <!-- labels -->
+            <text x="85" y="52" fill="rgba(0,210,255,0.6)" font-family="monospace" font-size="7">Vel</text>
+            <text x="85" y="95" fill="rgba(255,183,0,0.6)" font-family="monospace" font-size="7">Acc</text>
+            <!-- torque bars -->
+            <rect x="220" y="60"  width="18" height="90" rx="2" fill="rgba(57,255,126,0.15)" stroke="rgba(57,255,126,0.3)" stroke-width="1"/>
+            <rect x="244" y="80"  width="18" height="70" rx="2" fill="rgba(57,255,126,0.15)" stroke="rgba(57,255,126,0.3)" stroke-width="1"/>
+            <rect x="268" y="50"  width="18" height="100" rx="2" fill="rgba(57,255,126,0.25)" stroke="rgba(57,255,126,0.4)" stroke-width="1"/>
+            <text x="218" y="158" fill="rgba(57,255,126,0.5)" font-family="monospace" font-size="6">τ1 τ2 τ3</text>
+            <text x="8" y="16" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="9">MOTION PROFILE · TORQUE · MATLAB</text>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-id">ACD-004 / Motion Design</div>
+          <h3 class="proj-title">Cutting &amp; Sealing Machine</h3>
+          <p class="proj-desc">Mechanical design and motion profile simulation for a cutting and sealing machine. Torque and power calculations, trapezoidal motion curves designed in MATLAB and validated with Autodesk Inventor.</p>
+          <div class="proj-chips">
+            <span class="proj-chip">MATLAB</span>
+            <span class="proj-chip">Inventor</span>
+            <span class="proj-chip">Trapezoidal Profile</span>
+            <span class="proj-chip">Torque Analysis</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="proj-card">
+        <div class="proj-thumb">
+          <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+            <rect width="320" height="180" fill="#0c1627"/>
+            <!-- MCU board -->
+            <rect x="60" y="50" width="80" height="55" rx="4" fill="rgba(0,210,255,0.06)" stroke="rgba(0,210,255,0.25)" stroke-width="1.5"/>
+            <text x="70" y="75" fill="rgba(0,210,255,0.6)" font-family="monospace" font-size="8">ARDUINO</text>
+            <text x="70" y="87" fill="rgba(0,210,255,0.4)" font-family="monospace" font-size="7">UNO R3</text>
+            <!-- pins -->
+            <line x1="60"  y1="62" x2="44"  y2="62" stroke="rgba(0,210,255,0.3)" stroke-width="1"/>
+            <line x1="60"  y1="72" x2="44"  y2="72" stroke="rgba(0,210,255,0.3)" stroke-width="1"/>
+            <line x1="60"  y1="82" x2="44"  y2="82" stroke="rgba(0,210,255,0.3)" stroke-width="1"/>
+            <line x1="140" y1="62" x2="156" y2="62" stroke="rgba(57,255,126,0.3)" stroke-width="1"/>
+            <line x1="140" y1="72" x2="156" y2="72" stroke="rgba(57,255,126,0.3)" stroke-width="1"/>
+            <!-- motor driver -->
+            <rect x="168" y="50" width="60" height="40" rx="3" fill="rgba(57,255,126,0.06)" stroke="rgba(57,255,126,0.25)" stroke-width="1"/>
+            <text x="175" y="73" fill="rgba(57,255,126,0.6)" font-family="monospace" font-size="7">MOTOR DRV</text>
+            <!-- pump -->
+            <circle cx="250" cy="95" r="22" fill="rgba(255,183,0,0.06)" stroke="rgba(255,183,0,0.3)" stroke-width="1.5"/>
+            <text x="235" y="95" fill="rgba(255,183,0,0.6)" font-family="monospace" font-size="7">PUMP</text>
+            <text x="237" y="105" fill="rgba(255,183,0,0.4)" font-family="monospace" font-size="6">SPRAY</text>
+            <!-- mobile app -->
+            <rect x="76" y="118" width="48" height="34" rx="4" fill="rgba(0,210,255,0.06)" stroke="rgba(0,210,255,0.2)" stroke-width="1"/>
+            <text x="82" y="133" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="6">MOBILE</text>
+            <text x="84" y="143" fill="rgba(0,210,255,0.4)" font-family="monospace" font-size="6">APP</text>
+            <!-- BT -->
+            <line x1="140" y1="82" x2="168" y2="82" stroke="rgba(0,210,255,0.2)" stroke-width="1" stroke-dasharray="3,2"/>
+            <text x="147" y="79" fill="rgba(0,210,255,0.35)" font-family="monospace" font-size="6">BT</text>
+            <text x="8" y="16" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="9">EMBEDDED · SOLIDWORKS · MOBILE APP</text>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-id">ACD-005 / Final Year · B.Tech</div>
+          <h3 class="proj-title">Shoe Sanitation Machine</h3>
+          <p class="proj-desc">End-to-end electromechanical system — component selection, SolidWorks CAD design, embedded C firmware (Arduino), complete wiring, and a mobile app for wireless device control.</p>
+          <div class="proj-chips">
+            <span class="proj-chip">Embedded C</span>
+            <span class="proj-chip">SolidWorks</span>
+            <span class="proj-chip">Arduino</span>
+            <span class="proj-chip">Mobile App</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="proj-card">
+        <div class="proj-thumb">
+          <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+            <rect width="320" height="180" fill="#0c1627"/>
+            <!-- enclosure outline -->
+            <rect x="24" y="28" width="272" height="130" rx="6" fill="rgba(255,183,0,0.04)" stroke="rgba(255,183,0,0.2)" stroke-width="1.5"/>
+            <!-- protocol ports -->
+            <rect x="36" y="44" width="40" height="22" rx="3" fill="rgba(0,210,255,0.08)" stroke="rgba(0,210,255,0.25)" stroke-width="1"/>
+            <text x="42" y="59" fill="rgba(0,210,255,0.7)" font-family="monospace" font-size="7">CAN</text>
+            <rect x="84" y="44" width="40" height="22" rx="3" fill="rgba(0,210,255,0.08)" stroke="rgba(0,210,255,0.25)" stroke-width="1"/>
+            <text x="87" y="59" fill="rgba(0,210,255,0.7)" font-family="monospace" font-size="7">RS-485</text>
+            <rect x="132" y="44" width="40" height="22" rx="3" fill="rgba(0,210,255,0.08)" stroke="rgba(0,210,255,0.25)" stroke-width="1"/>
+            <text x="135" y="59" fill="rgba(0,210,255,0.7)" font-family="monospace" font-size="7">RS-232</text>
+            <rect x="180" y="44" width="40" height="22" rx="3" fill="rgba(57,255,126,0.08)" stroke="rgba(57,255,126,0.25)" stroke-width="1"/>
+            <text x="186" y="59" fill="rgba(57,255,126,0.7)" font-family="monospace" font-size="7">DIG IO</text>
+            <rect x="228" y="44" width="52" height="22" rx="3" fill="rgba(57,255,126,0.08)" stroke="rgba(57,255,126,0.25)" stroke-width="1"/>
+            <text x="231" y="59" fill="rgba(57,255,126,0.7)" font-family="monospace" font-size="7">HMI CAN</text>
+            <!-- result badge -->
+            <rect x="36" y="110" width="248" height="30" rx="4" fill="rgba(57,255,126,0.06)" stroke="rgba(57,255,126,0.2)" stroke-width="1"/>
+            <text x="52" y="129" fill="#39ff7e" font-family="monospace" font-size="9">↓ 75% fault diagnosis time</text>
+            <!-- optocoupler symbol row -->
+            <circle cx="50"  cy="90" r="7" fill="none" stroke="rgba(0,210,255,0.3)" stroke-width="1"/>
+            <circle cx="74"  cy="90" r="7" fill="none" stroke="rgba(0,210,255,0.3)" stroke-width="1"/>
+            <circle cx="98"  cy="90" r="7" fill="none" stroke="rgba(0,210,255,0.3)" stroke-width="1"/>
+            <text x="36" y="80" fill="rgba(90,122,154,0.6)" font-family="monospace" font-size="6">OPTO ISOLATION</text>
+            <text x="8" y="16" fill="rgba(255,183,0,0.5)" font-family="monospace" font-size="9">ALL PROTOCOLS · SOLO BUILD · TRIO MC</text>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-id">ACD-006 / Industrial Tool</div>
+          <h3 class="proj-title">Electronics Testing Kit</h3>
+          <p class="proj-desc">Solo-engineered diagnostic rig from scratch — CAD enclosure, component selection, full wiring covering CAN, RS-485, RS-232, Digital/Analog I/O, and HMI CAN I/O. Reduced factory fault diagnosis time by 75%.</p>
+          <div class="proj-chips">
+            <span class="proj-chip">CAN · RS-485</span>
+            <span class="proj-chip">RS-232</span>
+            <span class="proj-chip">Analog I/O</span>
+            <span class="proj-chip">SolidWorks CAD</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section><!-- ─── EXPERIENCE ─── -->
 <section id="experience">
   <div class="wrap">
     <div class="sec-label">Work History</div>
@@ -933,8 +1184,13 @@
         </div>
         <div class="exp-tab" data-tab="thesis">
           <span class="co">Univ. of Pavia</span>
-          <span class="role">M.TECH THESIS</span>
+          <span class="role">MS THESIS</span>
           <span class="period">2022 – 2025</span>
+        </div>
+        <div class="exp-tab" data-tab="btech">
+          <span class="co">Symbiosis Univ.</span>
+          <span class="role">B.TECH · MECHATRONICS</span>
+          <span class="period">2017 – 2021</span>
         </div>
       </div>
 
@@ -948,7 +1204,8 @@
           <li><div><strong>LiDAR-SLAM + Nav2</strong> — Autonomous map building, localisation, obstacle-aware path planning in unstructured environments with ROS2.</div></li>
           <li><div><strong>Multi-Modal Sensor Fusion</strong> — ToF, Ultrasonic, Proximity, RGB-D, LiDAR unified into single environmental awareness layer with real-time sync.</div></li>
           <li><div><strong>OpenCV Aiming System</strong> — Human detection, object tracking, depth estimation, closed-loop visual servoing for sensor-head orientation.</div></li>
-          <li><div><strong>AMR Fleet Deployment</strong> — ROS2-based AMR and forklift systems in live factory floors; multi-axis closed-loop control with encoder feedback and real-time drive tuning.</div></li>
+          <li><div><strong>AMR Fleet Deployment</strong> — ROS2-based AMR and forklift systems in live factory floors; sensor fusion for localisation, CV-based precision docking, multi-axis closed-loop control with real-time drive tuning.</div></li>
+          <li><div><strong>Servo Drives &amp; VFD Motor Tuning</strong> — Commissioning and parameter tuning of Siemens S1500 series drives, servo motors, and VFDs for precise motion control in AMR and industrial platforms.</div></li>
         </ul>
       </div>
 
@@ -982,7 +1239,19 @@
           <li><div><strong>Nav2 Navigation Stack</strong> — Integrated ROS2 + Nav2 for autonomous room traversal, waypoint following, and obstacle avoidance in hospital-like environment.</div></li>
           <li><div><strong>Computer Vision Pipeline</strong> — OpenCV-based perception for patient detection, posture analysis, and feedback generation.</div></li>
           <li><div><strong>Gazebo Simulation</strong> — Full system validated in Gazebo simulation with real-world deployment architecture designed for clinical deployment.</div></li>
-          <li><div>Scored <strong style="color:var(--lime)">96/110</strong> — awarded M.Tech in Industrial Automation, Robotics &amp; Mechatronics Engineering.</div></li>
+          <li><div>Scored <strong style="color:var(--lime)">96/110</strong> — awarded MS in Industrial Automation, Robotics &amp; Mechatronics Engineering.</div></li>
+        </ul>
+      </div>
+
+      <div class="exp-content" id="tab-btech">
+        <h3>B.Tech — Mechatronics Engineering</h3>
+        <p class="exp-meta">SYMBIOSIS SKILLS &amp; PROFESSIONAL UNIVERSITY · PUNE · 2017 – 2021 · CGPA 8.5/10</p>
+        <ul class="exp-items">
+          <li><div><strong>Core Curriculum</strong> — Mechanical design, electrical systems, electronics, embedded programming, and control theory forming the interdisciplinary mechatronics foundation.</div></li>
+          <li><div><strong>Internship — Sai Samarth Engineering, Goa</strong> — Gantry and articulated robot design in SolidWorks/AutoCAD; chocolate packaging automation and pick-and-place applications.</div></li>
+          <li><div><strong>Internship — Success Industries, Pune</strong> — Mercedes-Benz oil filter assembly line automation; mechanical design and production support across design, electrical, and assembly teams.</div></li>
+          <li><div><strong>Final Year Project — Shoe Sanitation Machine</strong> — End-to-end electromechanical system: component selection, SolidWorks CAD, embedded C firmware (Arduino), complete wiring, and a Bluetooth mobile app for wireless device control.</div></li>
+          <li><div>Graduated with <strong style="color:var(--lime)">CGPA 8.5/10</strong>.</div></li>
         </ul>
       </div>
     </div>
@@ -1003,7 +1272,7 @@
         <div class="tech-item">SLAM (LiDAR)<div class="tech-bar-wrap"><div class="tech-bar" style="width:90%"></div></div></div>
         <div class="tech-item">Gazebo / RViz<div class="tech-bar-wrap"><div class="tech-bar" style="width:85%"></div></div></div>
         <div class="tech-item">FK / IK (DH)<div class="tech-bar-wrap"><div class="tech-bar" style="width:92%"></div></div></div>
-        <div class="tech-item">Motion Planning<div class="tech-bar-wrap"><div class="tech-bar" style="width:88%"></div></div></div>
+        <div class="tech-item">CV Docking / Fusion<div class="tech-bar-wrap"><div class="tech-bar" style="width:88%"></div></div></div>
       </div>
       <div class="tech-col">
         <div class="tech-col-title">Programming</div>
@@ -1016,7 +1285,7 @@
       <div class="tech-col">
         <div class="tech-col-title">Control &amp; Protocols</div>
         <div class="tech-item">MIT Impedance<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:90%"></div></div></div>
-        <div class="tech-item">PLC / TIA Portal<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:82%"></div></div></div>
+        <div class="tech-item">S1500 / VFD Tuning<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:84%"></div></div></div>
         <div class="tech-item">CAN / EtherCAT<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:88%"></div></div></div>
         <div class="tech-item">RS-485 / Modbus<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:85%"></div></div></div>
         <div class="tech-item">IMU Fusion<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:87%"></div></div></div>
@@ -1026,7 +1295,7 @@
         <div class="tech-item">ESP32 / RPi 4<div class="tech-bar-wrap"><div class="tech-bar" style="width:90%"></div></div></div>
         <div class="tech-item">OpenCV<div class="tech-bar-wrap"><div class="tech-bar" style="width:85%"></div></div></div>
         <div class="tech-item">SolidWorks / CAD<div class="tech-bar-wrap"><div class="tech-bar" style="width:75%"></div></div></div>
-        <div class="tech-item">Git / GitHub<div class="tech-bar-wrap"><div class="tech-bar" style="width:92%"></div></div></div>
+        <div class="tech-item">TIA Portal<div class="tech-bar-wrap"><div class="tech-bar" style="width:82%"></div></div></div>
         <div class="tech-item">FT Optix / SCADA<div class="tech-bar-wrap"><div class="tech-bar" style="width:78%"></div></div></div>
       </div>
     </div>
@@ -1038,16 +1307,16 @@
   <div class="wrap">
     <div class="sec-label">Documents</div>
     <h2 class="sec-title">Resume &amp; Credentials</h2>
-    <p class="sec-sub">Downloadable files — resume, master's thesis, and professional certifications.</p>
+    <p class="sec-sub">Downloadable files — resume and master's thesis.</p>
 
-    <div class="docs-grid">
+    <div class="docs-grid" style="grid-template-columns: repeat(3, 1fr);">
       <a class="doc-card" href="./documents/resume.pdf" target="_blank" rel="noopener">
         <div class="doc-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </div>
         <div class="doc-label">Resume · PDF</div>
         <div class="doc-title">Full Resume</div>
-        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">Robotics Engineer — 3.5 yrs experience · M.Tech Pavia</p>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">Robotics Engineer — 3.5 yrs experience · MS Pavia</p>
         <div class="doc-path">documents/resume.pdf ↗</div>
       </a>
       <a class="doc-card" href="./documents/resume.docx" target="_blank" rel="noopener">
@@ -1068,33 +1337,6 @@
         <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">ROS2 · Nav2 · OpenCV · Gazebo · 96/110</p>
         <div class="doc-path">documents/thesis.pdf ↗</div>
       </a>
-      <a class="doc-card" href="./documents/certificates/plc.pdf" target="_blank" rel="noopener">
-        <div class="doc-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-        </div>
-        <div class="doc-label">Certificate</div>
-        <div class="doc-title">PLC Programming</div>
-        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">Siemens TIA Portal · S7-1200 · PROFINET</p>
-        <div class="doc-path">certificates/plc.pdf ↗</div>
-      </a>
-      <a class="doc-card" href="./documents/certificates/ros2.pdf" target="_blank" rel="noopener">
-        <div class="doc-icon" style="color:var(--lime);background:rgba(57,255,126,0.07);border-color:rgba(57,255,126,0.2);">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>
-        </div>
-        <div class="doc-label">Certificate</div>
-        <div class="doc-title">ROS2 Robotics</div>
-        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">Robot Operating System 2 · Nav2 · URDF</p>
-        <div class="doc-path">certificates/ros2.pdf ↗</div>
-      </a>
-      <a class="doc-card" href="./documents/certificates/scada.pdf" target="_blank" rel="noopener">
-        <div class="doc-icon" style="color:var(--amber);background:rgba(255,183,0,0.07);border-color:rgba(255,183,0,0.2);">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        </div>
-        <div class="doc-label">Certificate</div>
-        <div class="doc-title">SCADA Systems</div>
-        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">Industrial HMI · FT Optix · IIoT Architecture</p>
-        <div class="doc-path">certificates/scada.pdf ↗</div>
-      </a>
     </div>
   </div>
 </section>
@@ -1107,25 +1349,12 @@
     <p class="sec-sub">Photos and demos from robotics builds, PLC setups, SCADA deployments, and thesis work.</p>
 
     <div class="gallery-layout">
-      <div class="gallery-filters">
-        <button class="gal-filter active" data-cat="all">ALL</button>
-        <button class="gal-filter" data-cat="robotics">ROBOTICS</button>
-        <button class="gal-filter" data-cat="plc">PLC</button>
-        <button class="gal-filter" data-cat="scada">SCADA</button>
-        <button class="gal-filter" data-cat="thesis">THESIS</button>
+      <div class="gallery-filters" id="galleryFilters">
+        <!-- filters injected by JS -->
       </div>
       <div class="gallery-view">
         <div class="media-mosaic" id="mediaMosaic">
-          <div class="media-tile" data-cat="robotics"><img src="./gallery/robotics/robot1.jpg" alt="Robotics build" loading="lazy"><div class="media-tile-label">robot1.jpg</div></div>
-          <div class="media-tile" data-cat="robotics"><img src="./gallery/robotics/robot2.jpg" alt="Robotics build 2" loading="lazy"><div class="media-tile-label">robot2.jpg</div></div>
-          <div class="media-tile" data-cat="robotics"><img src="./gallery/robotics/robot3.jpg" alt="Robotics build 3" loading="lazy"><div class="media-tile-label">robot3.jpg</div></div>
-          <div class="media-tile" data-cat="robotics"><video controls preload="none" style="width:100%;height:100%;object-fit:cover"><source src="./gallery/robotics/robotics_demo.mp4" type="video/mp4"></video><div class="media-tile-label">robotics_demo.mp4</div></div>
-          <div class="media-tile" data-cat="plc"><img src="./gallery/plc/plc1.jpg" alt="PLC build" loading="lazy"><div class="media-tile-label">plc1.jpg</div></div>
-          <div class="media-tile" data-cat="plc"><img src="./gallery/plc/plc2.jpg" alt="PLC build 2" loading="lazy"><div class="media-tile-label">plc2.jpg</div></div>
-          <div class="media-tile" data-cat="plc"><video controls preload="none" style="width:100%;height:100%;object-fit:cover"><source src="./gallery/plc/plc_demo.mp4" type="video/mp4"></video><div class="media-tile-label">plc_demo.mp4</div></div>
-          <div class="media-tile" data-cat="scada"><img src="./gallery/scada/scada1.jpg" alt="SCADA interface" loading="lazy"><div class="media-tile-label">scada1.jpg</div></div>
-          <div class="media-tile" data-cat="scada"><img src="./gallery/scada/scada2.jpg" alt="SCADA interface 2" loading="lazy"><div class="media-tile-label">scada2.jpg</div></div>
-          <div class="media-tile" data-cat="thesis"><div class="media-tile-label" style="opacity:1;background:var(--surface);">📋 Thesis visuals<br>coming soon</div></div>
+          <!-- tiles injected by JS -->
         </div>
       </div>
     </div>
@@ -1160,8 +1389,8 @@
             <span class="tl-date edu">2017 – 2021</span>
             <span class="tl-badge">Degree</span>
           </div>
-          <h4>B.Tech — Mechatronics Engineering</h4>
-          <p>Symbiosis Skills &amp; Professional University, Pune · CGPA 8.5/10. Built the mechanical, electrical, and software foundations of robotics. Final year: Shoe Sanitation Machine (SolidWorks · Arduino · Mobile App).</p>
+          <h4>B.Tech — Mechatronics Engineering · CGPA 8.5/10</h4>
+          <p>Symbiosis Skills &amp; Professional University, Pune. Built the mechanical, electrical, and software foundations of robotics. Final year project: Shoe Sanitation Machine (SolidWorks · Arduino · Mobile App). Graduated with distinction — CGPA 8.5/10.</p>
         </div>
       </div>
 
@@ -1184,7 +1413,7 @@
             <span class="tl-date edu">2022 – 2025</span>
             <span class="tl-badge">Master's</span>
           </div>
-          <h4>M.Tech — Robotics &amp; Mechatronics · University of Pavia, Italy</h4>
+          <h4>MS — Robotics &amp; Mechatronics · University of Pavia, Italy</h4>
           <p>Deep dive into autonomous systems, legged robotics, SLAM, perception, and motion planning. Score: 96/110. Lived and studied in Italy — exposure to European industrial robotics ecosystem.</p>
         </div>
       </div>
@@ -1221,7 +1450,7 @@
             <span class="tl-badge">Current</span>
           </div>
           <h4>Motion Control Engineer — Bharat Forge KSMS</h4>
-          <p>Leading quadruped robotics (12-DOF locomotion, MIT impedance control, gait library), AMR/AGV development, LiDAR-SLAM navigation, and embedded electronics subsystems. Asst. Manager level, Maharashtra.</p>
+          <p>Leading quadruped robotics (12-DOF locomotion, MIT impedance control, gait library), AMR/AGV with CV docking, LiDAR-SLAM navigation, Siemens S1500 drive tuning. Asst. Manager level, Maharashtra.</p>
         </div>
       </div>
 
@@ -1244,7 +1473,7 @@
 <!-- ─── FOOTER ─── -->
 <footer>
   <div class="wrap footer-inner">
-    <span>Akshay Kangude · M.Tech Robotics · akshaykangude35@gmail.com</span>
+    <span>Akshay Kangude · MS Robotics · akshaykangude35@gmail.com</span>
     <div class="footer-links">
       <a href="https://github.com/akshaykangude" target="_blank">GitHub</a>
       <a href="https://linkedin.com/in/akshay-kangude-7057777106" target="_blank">LinkedIn</a>
@@ -1255,63 +1484,164 @@
 </footer>
 
 <script>
-  /* ── Experience tabs ── */
-  const tabs = document.querySelectorAll('.exp-tab');
-  const contents = document.querySelectorAll('.exp-content');
-  const tabMap = { bfksms:'tab-bfksms', enlive:'tab-enlive', trio:'tab-trio', thesis:'tab-thesis' };
+  /* ══════════════════════════════════════════
+     GALLERY — fully dynamic from this config.
+     To add more files, just add entries here.
+     ══════════════════════════════════════════ */
+  /*
+   * GALLERY CONFIG — add any new file here; page auto-updates.
+   *
+   * cat values (display name driven by CAT_LABELS below):
+   *   'quadruped'          → Quadruped
+   *   'agv'                → AGV
+   *   'soft-robotics'      → Soft Robotics
+   *   'industrial'         → Industrial Robotics
+   *   'thesis'             → Thesis
+   */
+  const CAT_LABELS = {
+    'all':           'ALL',
+    'quadruped':     'Quadruped',
+    'agv/amr':       'AGV / AMR',
+    'soft-robotics': 'Soft Robotics',
+    'industrial':    'Industrial Robotics',
+    'thesis':        'Thesis',
+  };
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.remove('active'));
-      tab.classList.add('active');
-      const key = tab.dataset.tab;
-      document.getElementById(tabMap[key])?.classList.add('active');
-    });
+  const GALLERY_ITEMS = [
+    /* ── QUADRUPED → gallery/quadruped/ ── */
+    { cat: 'quadruped', type: 'img',   src: './gallery/quadruped/Q1.jpeg',                label: 'Q1' },
+    { cat: 'quadruped', type: 'img',   src: './gallery/quadruped/Q2.jpeg',                label: 'Q2' },
+    { cat: 'quadruped', type: 'img',   src: './gallery/quadruped/Q3.jpeg',                label: 'Q3' },
+    { cat: 'quadruped', type: 'video', src: './gallery/quadruped/Quod_MIT.mp4',           label: 'MIT Control' },
+    { cat: 'quadruped', type: 'video', src: './gallery/quadruped/Quod_MIT_1.mp4',         label: 'MIT Control 2' },
+    { cat: 'quadruped', type: 'video', src: './gallery/quadruped/Quod_Trot.mp4',          label: 'Trot Gait' },
+    { cat: 'quadruped', type: 'video', src: './gallery/quadruped/Stand_up.mp4',           label: 'Stand Up' },
+    { cat: 'quadruped', type: 'video', src: './gallery/quadruped/Joy_Control.mp4',        label: 'Joystick Control' },
+    { cat: 'quadruped', type: 'video', src: './gallery/quadruped/Leg_Force_Handling.mp4', label: 'Force Handling' },
+    { cat: 'quadruped', type: 'video', src: './gallery/quadruped/Leg_Mass_Handling.mp4',  label: 'Mass Handling' },
+    { cat: 'quadruped', type: 'video', src: './gallery/quadruped/Leg_Obstacal.mp4',       label: 'Obstacle Response' },
+    { cat: 'quadruped', type: 'video', src: './gallery/quadruped/Leg_Softness.mp4',       label: 'Compliance / Softness' },
+
+    /* ── AGV / AMR → gallery/AGV_AMR/ ── */
+    // { cat: 'agv/amr', type: 'img',   src: './gallery/AGV_AMR/plc1.jpg',     label: 'AGV Build 1' },
+    // { cat: 'agv/amr', type: 'img',   src: './gallery/AGV_AMR/plc2.jpg',     label: 'AGV Build 2' },
+    // { cat: 'agv/amr', type: 'img',   src: './gallery/AGV_AMR/plc3.jpg',     label: 'AGV Build 3' },
+    // { cat: 'agv/amr', type: 'img',   src: './gallery/AGV_AMR/plc4.jpg',     label: 'AGV Build 4' },
+    { cat: 'agv/amr', type: 'img',   src: './gallery/AGV_AMR/AMR.jpeg',     label: 'AGV' },
+    { cat: 'agv/amr', type: 'video', src: './gallery/AGV_AMR/AMR.mp4', label: 'AGV Demo' },
+
+    /* ── SOFT ROBOTICS → gallery/soft_robotics/ ── */
+    { cat: 'soft-robotics', type: 'img', src: './gallery/soft_robotics/Auto_Aming.jpeg', label: 'Soft Robotics 1' },
+    { cat: 'soft-robotics', type: 'img', src: './gallery/soft_robotics/CV_Pick_Place.jpeg', label: 'Soft Robotics 2' },
+    { cat: 'soft-robotics', type: 'img', src: './gallery/soft_robotics/H1.jpeg', label: 'Soft Robotics 3' },
+    { cat: 'soft-robotics', type: 'img', src: './gallery/soft_robotics/H2.jpeg', label: 'Soft Robotics 4' },
+    { cat: 'soft-robotics', type: 'img', src: './gallery/soft_robotics/H3.jpeg', label: 'Soft Robotics 5' },
+    { cat: 'soft-robotics', type: 'video', src: './gallery/soft_robotics/Hand_EE.mp4', label: 'Hand End Effector' },
+
+    /* ── INDUSTRIAL ROBOTICS → gallery/industrial/ (add files below) ── */
+    // { cat: 'industrial', type: 'img',   src: './gallery/industrial/ind1.jpg', label: 'Industrial 1' },
+    // { cat: 'industrial', type: 'video', src: './gallery/industrial/ind1.mp4', label: 'Industrial Demo' },
+
+    /* ── THESIS → gallery/thesis/ ── */
+    { cat: 'thesis', type: 'video', src: './gallery/thesis/Demo1.mp4',        label: 'TIAGo Demo 1' },
+    { cat: 'thesis', type: 'video', src: './gallery/thesis/Demo2.mp4',        label: 'TIAGo Demo 2' },
+    { cat: 'thesis', type: 'video', src: './gallery/thesis/Demo3.mp4',        label: 'TIAGo Demo 3' },
+    { cat: 'thesis', type: 'video', src: './gallery/thesis/Presentation.mp4', label: 'Thesis Presentation' },
+  ];
+
+  /* ── derive unique categories in order ── */
+  const CATS = ['all', ...new Set(GALLERY_ITEMS.map(i => i.cat))];
+
+  /* ── build filter buttons using human-readable labels ── */
+  const filtersEl = document.getElementById('galleryFilters');
+  CATS.forEach((cat, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'gal-filter' + (idx === 0 ? ' active' : '');
+    btn.dataset.cat = cat;
+    btn.textContent = CAT_LABELS[cat] || cat.toUpperCase();
+    filtersEl.appendChild(btn);
   });
 
-  /* ── Gallery filter ── */
-  const galFilters = document.querySelectorAll('.gal-filter');
-  const tiles = document.querySelectorAll('.media-tile');
+  /* ── build tiles ── */
+  const mosaicEl = document.getElementById('mediaMosaic');
 
-  galFilters.forEach(btn => {
-    btn.addEventListener('click', () => {
-      galFilters.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const cat = btn.dataset.cat;
-      tiles.forEach(tile => {
-        tile.style.display = (cat === 'all' || tile.dataset.cat === cat) ? '' : 'none';
-      });
-    });
-  });
+  function buildTile(item) {
+    const tile = document.createElement('div');
+    tile.className = 'media-tile';
+    tile.dataset.cat = item.cat;
 
-  /* ── On image load: hide placeholder label ── */
-  document.querySelectorAll('.media-tile img, .media-tile video').forEach(el => {
-    const label = el.closest('.media-tile')?.querySelector('.media-tile-label');
-    if (!label) return;
-    const hide = () => { label.style.display = 'none'; };
-    if (el.tagName === 'IMG') {
-      if (el.complete && el.naturalWidth > 0) hide();
-      else el.addEventListener('load', hide);
+    if (item.type === 'img') {
+      const img = document.createElement('img');
+      img.src = item.src;
+      img.alt = item.label;
+      img.loading = 'lazy';
+      tile.appendChild(img);
     } else {
-      el.addEventListener('loadeddata', hide);
+      const vid = document.createElement('video');
+      vid.controls = true;
+      vid.preload = 'metadata';
+      vid.style.cssText = 'width:100%;height:auto;max-height:400px;display:block;';
+      const src = document.createElement('source');
+      src.src = item.src;
+      src.type = 'video/mp4';
+      vid.appendChild(src);
+      tile.appendChild(vid);
     }
+
+    const lbl = document.createElement('div');
+    lbl.className = 'media-tile-label';
+    lbl.textContent = item.label;
+    tile.appendChild(lbl);
+
+    return tile;
+  }
+
+  GALLERY_ITEMS.forEach(item => mosaicEl.appendChild(buildTile(item)));
+
+  /* ── filter logic ── */
+  function applyFilter(cat) {
+    document.querySelectorAll('.gal-filter').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+    document.querySelectorAll('.media-tile').forEach(tile => {
+      tile.style.display = (cat === 'all' || tile.dataset.cat === cat) ? '' : 'none';
+    });
+  }
+
+  filtersEl.addEventListener('click', e => {
+    const btn = e.target.closest('.gal-filter');
+    if (btn) applyFilter(btn.dataset.cat);
   });
 
-  /* ── Timeline scroll reveal ── */
+  /* ══════════════════════════════════════════
+     EXPERIENCE TABS
+     ══════════════════════════════════════════ */
+  const tabMap = { bfksms:'tab-bfksms', enlive:'tab-enlive', trio:'tab-trio', thesis:'tab-thesis', btech:'tab-btech' };
+
+  document.querySelectorAll('.exp-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.exp-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.exp-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tabMap[tab.dataset.tab])?.classList.add('active');
+    });
+  });
+
+  /* ══════════════════════════════════════════
+     TIMELINE SCROLL REVEAL
+     ══════════════════════════════════════════ */
   const tlObserver = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
+        const idx = [...document.querySelectorAll('.tl-item')].indexOf(e.target);
+        e.target.style.transitionDelay = (idx * 80) + 'ms';
         e.target.classList.add('visible');
-        const delay = [...document.querySelectorAll('.tl-item')].indexOf(e.target) * 80;
-        e.target.style.transitionDelay = delay + 'ms';
       }
     });
   }, { threshold: 0.12 });
   document.querySelectorAll('.tl-item').forEach(el => tlObserver.observe(el));
 
-  /* ── Nav active link highlight on scroll ── */
-  const sections = document.querySelectorAll('section[id]');
+  /* ══════════════════════════════════════════
+     NAV SCROLL SPY
+     ══════════════════════════════════════════ */
   const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
   const scrollSpy = new IntersectionObserver((entries) => {
     entries.forEach(e => {
@@ -1322,7 +1652,7 @@
       }
     });
   }, { rootMargin: '-40% 0px -55% 0px' });
-  sections.forEach(s => scrollSpy.observe(s));
+  document.querySelectorAll('section[id]').forEach(s => scrollSpy.observe(s));
 </script>
 </body>
 </html>
