@@ -1,304 +1,734 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Akshay — Robotics & Automation Lab</title>
-<meta name="description" content="Robotics, SLAM, and industrial automation projects — built and documented by Akshay.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:        #0a0e14;
-    --bg-panel:  #10151f;
-    --bg-raised: #161d2b;
-    --line:      #1f2937;
-    --line-lit:  #2a3548;
-    --text:      #e8ecf1;
-    --text-dim:  #7c8a9e;
-    --text-faint:#4a5568;
-    --blue:      #3b82f6;
-    --blue-dim:  #1e3a5f;
-    --green:     #22c55e;
-    --amber:     #f59e0b;
-    --red:       #ef4444;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Inter', sans-serif;
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:var(--sans);
-    line-height:1.6;
-    overflow-x:hidden;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Akshay Kangude — Robotics Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ─── TOKENS ─── */
+    :root {
+      --ink:     #03070f;
+      --panel:   #060d18;
+      --surface: #0c1627;
+      --lift:    #102037;
+      --border:  rgba(0,210,255,0.12);
+      --border2: rgba(0,210,255,0.22);
+      --cyan:    #00d2ff;
+      --lime:    #39ff7e;
+      --amber:   #ffb700;
+      --red:     #ff4060;
+      --text:    #d6eeff;
+      --muted:   #5a7a9a;
+      --dim:     #3a5570;
+      --glow-c:  rgba(0,210,255,0.18);
+      --glow-g:  rgba(57,255,126,0.14);
+      --mono:    'Share Tech Mono', monospace;
+      --title:   'Rajdhani', sans-serif;
+      --body:    'Inter', sans-serif;
+      --max:     1220px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
-  /* ── background circuit grid ── */
-  .grid-backdrop{
-    position:fixed; inset:0; z-index:0;
-    background-image:
-      linear-gradient(var(--line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--line) 1px, transparent 1px);
-    background-size:42px 42px;
-    opacity:0.25;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
-  }
+    body {
+      font-family: var(--body);
+      background: var(--ink);
+      color: var(--text);
+      overflow-x: hidden;
+    }
 
-  .wrap{max-width:1080px; margin:0 auto; padding:0 28px; position:relative; z-index:1;}
+    /* ─── GLOBAL SCAN-LINE OVERLAY ─── */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.07) 2px,
+        rgba(0,0,0,0.07) 4px
+      );
+    }
 
-  /* ── nav ── */
-  nav{
-    position:sticky; top:0; z-index:50;
-    background:rgba(10,14,20,0.85);
-    backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line);
-  }
-  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:64px;}
-  .brand{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-weight:700; font-size:15px; letter-spacing:0.5px;}
-  .brand .dot{width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2.5s ease-in-out infinite;}
-  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.4;}}
-  .navlinks{display:flex; gap:28px; font-family:var(--mono); font-size:13px; color:var(--text-dim);}
-  .navlinks a{color:inherit; text-decoration:none; transition:color .15s;}
-  .navlinks a:hover{color:var(--blue);}
+    /* ─── ANIMATED CIRCUIT GRID BACKGROUND ─── */
+    .circuit-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    }
+    .circuit-bg svg { width: 100%; height: 100%; opacity: 0.045; }
 
-  /* ── hero ── */
-  .hero{padding:88px 0 64px; position:relative;}
-  .eyebrow{
-    font-family:var(--mono); font-size:12px; letter-spacing:2px; color:var(--blue);
-    display:inline-flex; align-items:center; gap:8px; margin-bottom:20px;
-    border:1px solid var(--blue-dim); padding:5px 12px; border-radius:3px;
-    background:rgba(59,130,246,0.06);
-  }
-  h1{
-    font-family:var(--mono); font-weight:800; font-size:clamp(32px,5vw,52px);
-    letter-spacing:-0.5px; line-height:1.08; max-width:760px;
-  }
-  h1 .hl{color:var(--blue);}
-  .hero p{
-    margin-top:20px; max-width:560px; font-size:16px; color:var(--text-dim);
-  }
-  .hero-stats{
-    display:flex; gap:0; margin-top:40px; border:1px solid var(--line); border-radius:6px; overflow:hidden;
-    max-width:620px;
-  }
-  .hstat{flex:1; padding:16px 20px; border-right:1px solid var(--line);}
-  .hstat:last-child{border-right:none;}
-  .hstat .num{font-family:var(--mono); font-size:24px; font-weight:700; color:var(--text);}
-  .hstat .lbl{font-family:var(--mono); font-size:11px; color:var(--text-faint); letter-spacing:0.5px; margin-top:2px;}
+    /* ─── NAV ─── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(16px) saturate(1.4);
+      background: rgba(3,7,15,0.82);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: var(--max); margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 14px;
+      font-family: var(--mono); font-size: 0.78rem; color: var(--cyan);
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 40px; height: 40px;
+      border: 1.5px solid var(--cyan);
+      border-radius: 8px;
+      display: grid; place-items: center;
+      position: relative;
+      box-shadow: 0 0 18px var(--glow-c);
+    }
+    .logo-icon::after {
+      content: "";
+      position: absolute; inset: 3px;
+      border: 1px solid rgba(0,210,255,0.3);
+      border-radius: 4px;
+    }
+    .logo-icon svg { color: var(--cyan); }
+    .logo-text { line-height: 1.3; }
+    .logo-text strong { display: block; color: var(--text); font-family: var(--title); font-size: 1rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .logo-text span { color: var(--muted); font-size: 0.72rem; }
 
-  /* ── section heading ── */
-  .section{padding:56px 0;}
-  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:10px;}
-  .section-title{font-family:var(--mono); font-size:13px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase;}
-  .section-title b{color:var(--text);}
-  .section-line{flex:1; height:1px; background:var(--line); margin:0 20px;}
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a {
+      padding: 8px 14px; border-radius: 6px;
+      font-family: var(--mono); font-size: 0.78rem; color: var(--muted);
+      text-decoration: none; letter-spacing: 0.06em;
+      border: 1px solid transparent;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .nav-links a:hover { color: var(--cyan); border-color: var(--border2); background: rgba(0,210,255,0.05); }
+    .nav-cta {
+      padding: 9px 18px !important;
+      color: var(--cyan) !important;
+      border-color: var(--border2) !important;
+      background: rgba(0,210,255,0.07) !important;
+      box-shadow: 0 0 14px var(--glow-c);
+    }
 
-  /* ── project panel ── */
-  .panels{display:flex; flex-direction:column; gap:16px;}
-  .panel{
-    background:var(--bg-panel); border:1px solid var(--line); border-radius:8px;
-    padding:24px 26px; transition: border-color .2s, transform .2s;
-    position:relative; overflow:hidden;
-  }
-  .panel::before{
-    content:''; position:absolute; top:0; left:0; width:3px; height:100%;
-    background:var(--green);
-  }
-  .panel.future::before{ background:var(--text-faint); }
-  .panel:hover{ border-color:var(--line-lit); }
-  .panel-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
-  .panel-id{font-family:var(--mono); font-size:11px; color:var(--text-faint); letter-spacing:1px; margin-bottom:6px;}
-  .panel-title{font-family:var(--mono); font-size:19px; font-weight:700; display:flex; align-items:center; gap:10px;}
-  .led{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
-  .led.live{background:var(--green); box-shadow:0 0 6px var(--green);}
-  .led.future{background:var(--text-faint);}
-  .panel-desc{color:var(--text-dim); font-size:14px; margin-top:8px; max-width:600px;}
-  .panel-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:14px;}
-  .tag{
-    font-family:var(--mono); font-size:10.5px; padding:3px 9px; border-radius:3px;
-    background:var(--bg-raised); color:var(--text-dim); border:1px solid var(--line);
-  }
-  .panel-actions{display:flex; gap:10px; flex-shrink:0;}
-  .btn{
-    font-family:var(--mono); font-size:12.5px; font-weight:600; padding:9px 16px;
-    border-radius:5px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
-    transition: all .15s; white-space:nowrap;
-  }
-  .btn-primary{background:var(--blue); color:#fff;}
-  .btn-primary:hover{background:#2563eb;}
-  .btn-ghost{background:transparent; color:var(--text-dim); border:1px solid var(--line);}
-  .btn-ghost:hover{border-color:var(--line-lit); color:var(--text);}
-  .btn-disabled{background:transparent; color:var(--text-faint); border:1px dashed var(--line); cursor:default;}
+    /* ─── LAYOUT ─── */
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+    section { padding: 80px 0; }
+    section + section { border-top: 1px solid var(--border); }
 
-  .status-row{
-    display:flex; gap:18px; margin-top:16px; padding-top:16px; border-top:1px solid var(--line);
-    font-family:var(--mono); font-size:11.5px; color:var(--text-faint); flex-wrap:wrap;
-  }
-  .status-row span b{color:var(--text-dim); font-weight:600;}
+    /* ─── SEC HEADER ─── */
+    .sec-label {
+      font-family: var(--mono); font-size: 0.72rem; color: var(--cyan);
+      letter-spacing: 0.2em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+    .sec-label::before { content: ""; width: 28px; height: 1px; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+    .sec-title {
+      font-family: var(--title); font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--text); line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .sec-sub { color: var(--muted); font-size: 0.95rem; max-width: 58ch; line-height: 1.7; }
 
-  /* future panel placeholder card */
-  .panel.future .panel-title{color:var(--text-dim);}
-  .future-slot{
-    border:1px dashed var(--line); border-radius:8px; padding:22px 26px;
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
-    color:var(--text-faint); font-family:var(--mono); font-size:13px;
-  }
+    /* ─── HERO ─── */
+    #hero { padding: 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; position: relative; }
 
-  /* ── footer ── */
-  footer{
-    border-top:1px solid var(--line); padding:40px 0; margin-top:40px;
-    font-family:var(--mono); font-size:12px; color:var(--text-faint);
-    display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
-  }
-  footer a{color:var(--text-dim); text-decoration:none;}
-  footer a:hover{color:var(--blue);}
+    .hero-grid {
+      display: grid; grid-template-columns: 1fr 420px; gap: 40px;
+      align-items: center; padding: 80px 0;
+    }
 
-  @media (max-width:680px){
-    .hero-stats{flex-direction:column;}
-    .hstat{border-right:none; border-bottom:1px solid var(--line);}
-    .hstat:last-child{border-bottom:none;}
-    .panel-top{flex-direction:column;}
-    .panel-actions{width:100%;}
-    .btn{flex:1; justify-content:center;}
-  }
-</style>
+    .hero-status {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--mono); font-size: 0.72rem; color: var(--lime);
+      letter-spacing: 0.14em; text-transform: uppercase;
+      border: 1px solid rgba(57,255,126,0.25);
+      background: rgba(57,255,126,0.06);
+      padding: 8px 14px; border-radius: 4px;
+      margin-bottom: 28px;
+    }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--lime);
+      box-shadow: 0 0 12px var(--lime);
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 12px var(--lime)} 50%{opacity:0.4;box-shadow:none} }
+
+    .hero-name {
+      font-family: var(--title); font-weight: 700;
+      font-size: clamp(3rem, 7vw, 7rem); line-height: 0.95;
+      letter-spacing: -0.01em; text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .hero-name em {
+      display: block; font-style: normal;
+      background: linear-gradient(90deg, var(--cyan), rgba(0,210,255,0.5));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-spec {
+      font-family: var(--mono); font-size: 0.82rem; color: var(--cyan);
+      letter-spacing: 0.1em; margin-bottom: 24px;
+    }
+    .hero-spec span { color: var(--muted); }
+
+    .hero-bio {
+      font-size: 1rem; color: #98b8d4; line-height: 1.8;
+      max-width: 62ch; margin-bottom: 36px;
+    }
+
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 12px 22px; border-radius: 6px;
+      font-weight: 600; font-size: 0.88rem; text-decoration: none;
+      letter-spacing: 0.04em; transition: all 0.2s; border: 1px solid;
+    }
+    .btn-primary {
+      background: rgba(0,210,255,0.1); color: var(--cyan);
+      border-color: var(--cyan); box-shadow: 0 0 20px var(--glow-c);
+    }
+    .btn-primary:hover { background: rgba(0,210,255,0.18); box-shadow: 0 0 36px var(--glow-c); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.02); color: var(--text);
+      border-color: var(--border2);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.05); border-color: rgba(0,210,255,0.35); }
+
+    /* ─── HERO STATS PANEL ─── */
+    .hero-stats-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .hero-stats-panel::before {
+      content: ""; position: absolute; inset: 0 0 auto 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+
+    .panel-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    }
+    .dot-red   { width:10px;height:10px;border-radius:50%;background:#ff5f56; }
+    .dot-yellow{ width:10px;height:10px;border-radius:50%;background:#ffbd2e; }
+    .dot-green { width:10px;height:10px;border-radius:50%;background:#27c93f; }
+
+    .stats-body { padding: 0; }
+    .stat-row {
+      display: flex; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-key {
+      padding: 16px 18px; min-width: 130px;
+      font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      border-right: 1px solid var(--border);
+      display: flex; align-items: center;
+    }
+    .stat-val {
+      padding: 16px 18px; flex: 1;
+      font-family: var(--mono); font-size: 0.78rem; color: var(--text);
+    }
+    .stat-val strong { color: var(--cyan); }
+    .stat-val .tag {
+      display: inline-block; margin: 2px 3px;
+      padding: 2px 8px; border-radius: 3px;
+      background: rgba(0,210,255,0.08); border: 1px solid var(--border2);
+      font-size: 0.7rem; color: var(--cyan);
+    }
+
+    /* ─── SPECS GRID (skills) ─── */
+    .specs-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+    }
+    .spec-cell {
+      background: var(--panel);
+      padding: 24px 22px;
+      position: relative;
+      transition: background 0.2s;
+    }
+    .spec-cell:hover { background: var(--surface); }
+    .spec-cell::before {
+      content: attr(data-id);
+      position: absolute; top: 14px; right: 18px;
+      font-family: var(--mono); font-size: 0.65rem; color: var(--dim);
+    }
+    .spec-icon {
+      width: 38px; height: 38px; border-radius: 8px;
+      display: grid; place-items: center; margin-bottom: 14px;
+      border: 1px solid var(--border);
+    }
+    .spec-icon.cyan { background: rgba(0,210,255,0.08); border-color: rgba(0,210,255,0.2); color: var(--cyan); }
+    .spec-icon.lime { background: rgba(57,255,126,0.08); border-color: rgba(57,255,126,0.2); color: var(--lime); }
+    .spec-icon.amber{ background: rgba(255,183,0,0.08); border-color: rgba(255,183,0,0.2); color: var(--amber); }
+    .spec-cell h4 {
+      font-family: var(--title); font-size: 1rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--text);
+      margin-bottom: 8px;
+    }
+    .spec-cell p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+    .spec-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+    .spec-tag {
+      font-family: var(--mono); font-size: 0.66rem;
+      padding: 3px 7px; border-radius: 3px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      color: var(--dim); letter-spacing: 0.04em;
+    }
+
+    /* ─── PROJECT CARDS ─── */
+    .projects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 40px; }
+
+    .proj-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      display: flex; flex-direction: column;
+      position: relative;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .proj-card:hover {
+      border-color: rgba(0,210,255,0.35);
+      box-shadow: 0 0 40px rgba(0,210,255,0.08);
+    }
+    .proj-card::before {
+      content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .proj-card:hover::before { opacity: 1; }
+
+    .proj-thumb {
+      height: 180px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: grid; place-items: center;
+      overflow: hidden; position: relative;
+    }
+    .proj-thumb-vis {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .proj-body { padding: 22px; flex: 1; display: flex; flex-direction: column; }
+    .proj-id { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.14em; margin-bottom: 10px; }
+    .proj-title {
+      font-family: var(--title); font-size: 1.25rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase; color: var(--text);
+      margin-bottom: 10px;
+    }
+    .proj-desc { font-size: 0.84rem; color: var(--muted); line-height: 1.7; flex: 1; margin-bottom: 16px; }
+    .proj-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+    .proj-chip {
+      font-family: var(--mono); font-size: 0.68rem;
+      padding: 4px 9px; border-radius: 3px;
+      background: rgba(0,210,255,0.05); border: 1px solid var(--border2);
+      color: #7ac9e8;
+    }
+    .proj-links { display: flex; gap: 10px; }
+    .proj-link {
+      flex: 1; padding: 10px 14px; border-radius: 5px; text-decoration: none;
+      font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+      text-align: center; letter-spacing: 0.06em;
+      transition: all 0.2s; border: 1px solid;
+    }
+    .proj-link.demo {
+      background: rgba(0,210,255,0.1); color: var(--cyan);
+      border-color: rgba(0,210,255,0.3);
+    }
+    .proj-link.demo:hover { background: rgba(0,210,255,0.18); }
+    .proj-link.src {
+      background: rgba(255,255,255,0.02); color: var(--muted);
+      border-color: var(--border);
+    }
+    .proj-link.src:href:hover { color: var(--text); border-color: var(--border2); }
+
+    /* ─── SVG THUMBS ─── */
+    .thumb-canvas { width: 100%; height: 100%; }
+
+    /* ─── EXPERIENCE SECTION ─── */
+    .exp-grid { display: grid; grid-template-columns: 240px 1fr; gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 40px; }
+    .exp-tabs { background: var(--panel); }
+    .exp-tab {
+      padding: 18px 20px; cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 4px;
+      transition: background 0.2s;
+    }
+    .exp-tab:last-child { border-bottom: none; }
+    .exp-tab:hover, .exp-tab.active { background: var(--surface); }
+    .exp-tab.active { border-right: 2px solid var(--cyan); box-shadow: inset -1px 0 20px rgba(0,210,255,0.05); }
+    .exp-tab .co { font-family: var(--title); font-size: 0.95rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text); }
+    .exp-tab .role { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.06em; margin-top: 2px; }
+    .exp-tab .period { font-family: var(--mono); font-size: 0.65rem; color: var(--dim); margin-top: 4px; }
+    .exp-tab.active .co { color: var(--cyan); }
+
+    .exp-content { background: var(--panel); padding: 32px 36px; display: none; }
+    .exp-content.active { display: block; }
+    .exp-content h3 { font-family: var(--title); font-size: 1.4rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text); margin-bottom: 6px; }
+    .exp-content .exp-meta { font-family: var(--mono); font-size: 0.72rem; color: var(--cyan); letter-spacing: 0.1em; margin-bottom: 22px; }
+    .exp-items { list-style: none; display: grid; gap: 10px; }
+    .exp-items li {
+      display: flex; gap: 12px; align-items: flex-start;
+      font-size: 0.88rem; color: #a8c8e0; line-height: 1.65;
+    }
+    .exp-items li::before {
+      content: "▸"; color: var(--cyan); flex-shrink: 0; margin-top: 1px;
+      font-size: 0.72rem;
+    }
+    .exp-items li strong { color: var(--text); }
+
+    /* ─── TECH RADAR ─── */
+    .tech-cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 40px; }
+    .tech-col {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 8px; padding: 20px 18px; position: relative;
+    }
+    .tech-col-title {
+      font-family: var(--mono); font-size: 0.68rem; color: var(--cyan);
+      letter-spacing: 0.14em; text-transform: uppercase;
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tech-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.82rem; color: var(--text);
+    }
+    .tech-item:last-child { border-bottom: none; }
+    .tech-bar-wrap { width: 60px; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; }
+    .tech-bar { height: 100%; border-radius: 2px; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+    .tech-bar.lime { background: var(--lime); box-shadow: 0 0 6px var(--lime); }
+    .tech-bar.amber{ background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+
+    /* ─── DOCS ─── */
+    .docs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+    .doc-card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 8px; padding: 22px; display: flex; flex-direction: column;
+      text-decoration: none; color: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .doc-card:hover { border-color: rgba(0,210,255,0.35); box-shadow: 0 0 28px rgba(0,210,255,0.07); }
+    .doc-icon {
+      width: 44px; height: 44px; border-radius: 8px;
+      display: grid; place-items: center; margin-bottom: 16px;
+      background: rgba(0,210,255,0.07); border: 1px solid var(--border2);
+      color: var(--cyan);
+    }
+    .doc-label { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+    .doc-title { font-family: var(--title); font-size: 1.1rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text); margin-bottom: 6px; }
+    .doc-path { font-family: var(--mono); font-size: 0.68rem; color: var(--dim); margin-top: auto; padding-top: 14px; }
+
+    /* ─── GALLERY ─── */
+    .gallery-layout { display: grid; grid-template-columns: 200px 1fr; gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 40px; }
+    .gallery-filters { background: var(--panel); }
+    .gal-filter {
+      width: 100%; padding: 14px 18px; text-align: left;
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.08em;
+      transition: all 0.2s;
+    }
+    .gal-filter:hover, .gal-filter.active { background: var(--surface); color: var(--cyan); }
+    .gal-filter.active { border-right: 2px solid var(--cyan); }
+    .gallery-view { background: var(--panel); }
+    .media-mosaic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; }
+    .media-tile {
+      aspect-ratio: 4/3;
+      background: var(--surface);
+      border-radius: 4px; overflow: hidden;
+      display: grid; place-items: center;
+      position: relative;
+    }
+    .media-tile img, .media-tile video { width: 100%; height: 100%; object-fit: cover; }
+    .media-tile-label {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(3,7,15,0.7);
+      font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+      text-align: center; padding: 12px;
+    }
+
+    /* ─── TIMELINE ─── */
+    .timeline-wrap { margin-top: 40px; position: relative; padding-left: 32px; }
+    .timeline-wrap::before {
+      content: ""; position: absolute; left: 10px; top: 0; bottom: 0; width: 1px;
+      background: linear-gradient(180deg, transparent, var(--cyan) 10%, var(--cyan) 90%, transparent);
+      box-shadow: 0 0 12px var(--glow-c);
+    }
+    .tl-item {
+      position: relative; margin-bottom: 28px;
+      opacity: 0; transform: translateX(-16px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .tl-item.visible { opacity: 1; transform: translateX(0); }
+    .tl-dot {
+      position: absolute; left: -38px; top: 18px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--ink); border: 2px solid var(--cyan);
+      box-shadow: 0 0 14px var(--glow-c);
+    }
+    .tl-dot.edu { border-color: var(--lime); box-shadow: 0 0 14px var(--glow-g); }
+    .tl-dot.work { border-color: var(--amber); box-shadow: 0 0 14px rgba(255,183,0,0.3); }
+    .tl-card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 8px; padding: 20px 22px;
+    }
+    .tl-card:hover { border-color: var(--border2); }
+    .tl-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .tl-date { font-family: var(--mono); font-size: 0.72rem; color: var(--cyan); letter-spacing: 0.1em; }
+    .tl-date.edu { color: var(--lime); }
+    .tl-date.work { color: var(--amber); }
+    .tl-badge {
+      font-family: var(--mono); font-size: 0.64rem;
+      padding: 3px 8px; border-radius: 3px; border: 1px solid var(--border);
+      color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .tl-card h4 { font-family: var(--title); font-size: 1.05rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text); margin-bottom: 6px; }
+    .tl-card p { font-size: 0.84rem; color: var(--muted); line-height: 1.65; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      font-family: var(--mono); font-size: 0.74rem; color: var(--dim);
+    }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { color: var(--muted); text-decoration: none; }
+    .footer-links a:hover { color: var(--cyan); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero-stats-panel { display: none; }
+      .specs-grid { grid-template-columns: repeat(2, 1fr); }
+      .projects-grid { grid-template-columns: repeat(2, 1fr); }
+      .tech-cols { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 760px) {
+      .wrap { padding: 0 16px; }
+      section { padding: 56px 0; }
+      .specs-grid, .projects-grid { grid-template-columns: 1fr; }
+      .exp-grid { grid-template-columns: 1fr; }
+      .exp-tabs { display: flex; overflow-x: auto; background: var(--surface); }
+      .exp-tab { flex-shrink: 0; min-width: 140px; border-bottom: none; border-right: 1px solid var(--border); }
+      .exp-tab.active { border-right-color: var(--border); border-bottom: 2px solid var(--cyan); }
+      .docs-grid { grid-template-columns: 1fr; }
+      .gallery-layout { grid-template-columns: 1fr; }
+      .gallery-filters { display: flex; overflow-x: auto; }
+      .gal-filter { flex-shrink: 0; border-bottom: none; border-right: 1px solid var(--border); }
+      .media-mosaic { grid-template-columns: repeat(2, 1fr); }
+      .tech-cols { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+      .footer-inner { flex-direction: column; gap: 12px; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="grid-backdrop"></div>
+<!-- CIRCUIT GRID BG -->
+<div class="circuit-bg" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="grid" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+        <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#00d2ff" stroke-width="0.5"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#grid)"/>
+    <!-- circuit traces -->
+    <path d="M120 180 L300 180 L300 360 L480 360 L480 540" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+    <path d="M600 120 L600 300 L780 300 L780 480 L960 480" fill="none" stroke="#39ff7e" stroke-width="1"/>
+    <path d="M900 240 L1080 240 L1080 420 L1260 420" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+    <path d="M180 600 L360 600 L360 780 L540 780" fill="none" stroke="#39ff7e" stroke-width="1"/>
+    <path d="M720 600 L900 600 L900 780 L1080 780 L1080 660 L1260 660" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+    <!-- nodes -->
+    <circle cx="300" cy="180" r="4" fill="#00d2ff"/>
+    <circle cx="480" cy="360" r="4" fill="#00d2ff"/>
+    <circle cx="600" cy="300" r="3" fill="#39ff7e"/>
+    <circle cx="780" cy="480" r="3" fill="#39ff7e"/>
+    <circle cx="1080" cy="240" r="4" fill="#00d2ff"/>
+    <circle cx="360" cy="600" r="3" fill="#39ff7e"/>
+    <circle cx="900" cy="600" r="4" fill="#00d2ff"/>
+  </svg>
+</div>
 
+<!-- ─── NAV ─── -->
 <nav>
-  <div class="wrap">
-    <div class="brand"><span class="dot"></span> AKSHAY // ROBOTICS LAB</div>
-    <div class="navlinks">
+  <div class="nav-inner">
+    <a href="#hero" class="logo">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4"/><path d="M8 12v8M16 12v8M6 20h12M10 4V2M14 4V2"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <strong>Akshay Kangude</strong>
+        <span>M.Tech Robotics · Pavia, Italy</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#expertise">Expertise</a>
       <a href="#projects">Projects</a>
-      <a href="#upcoming">Upcoming</a>
-      <a href="https://github.com/akshaykangude" target="_blank">GitHub</a>
+      <a href="#experience">Experience</a>
+      <a href="#tech">Tech Stack</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#journey">Journey</a>
+      <a href="./documents/resume.pdf" target="_blank" class="nav-cta">Resume ↗</a>
     </div>
   </div>
 </nav>
 
-<header class="hero">
+<!-- ─── HERO ─── -->
+<section id="hero">
   <div class="wrap">
-    <div class="eyebrow"><span>●</span> SYSTEM ONLINE</div>
-    <h1>Robotics &amp; automation,<br>built <span class="hl">in the open.</span></h1>
-    <p>
-      Industrial PLC systems, SLAM algorithms, and robotics simulations —
-      documented, runnable, and pushed straight from the lab notebook to GitHub.
-    </p>
-    <div class="hero-stats">
-      <div class="hstat"><div class="num">3</div><div class="lbl">PROJECTS LIVE</div></div>
-      <div class="hstat"><div class="num">7</div><div class="lbl">ALGORITHMS IMPLEMENTED</div></div>
-      <div class="hstat"><div class="num">∞</div><div class="lbl">MORE IN PROGRESS</div></div>
+    <div class="hero-grid">
+      <div class="hero-left">
+        <div class="hero-status"><span class="status-dot"></span>Open to Robotics Roles Globally</div>
+        <h1 class="hero-name">Akshay<em>Kangude</em></h1>
+        <p class="hero-spec"><span>M.TECH //</span> Robotics &amp; Mechatronics · University of Pavia</p>
+        <p class="hero-bio">
+          Robotics engineer with 3.5+ years building systems that move, see, and think — from 12-DOF quadruped locomotion with MIT impedance control to SLAM-based AMR navigation in live industrial environments. Master's thesis on autonomous patient-analysis robotics with TIAGo + ROS2.
+        </p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#projects">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Live Simulations
+          </a>
+          <a class="btn btn-ghost" href="#experience">Work History</a>
+          <a class="btn btn-ghost" href="./documents/resume.pdf" target="_blank">Resume PDF ↗</a>
+        </div>
+      </div>
+
+      <div class="hero-stats-panel">
+        <div class="panel-header">
+          <span class="dot-red"></span><span class="dot-yellow"></span><span class="dot-green"></span>
+          <span style="margin-left:8px;">sys_profile.json</span>
+        </div>
+        <div class="stats-body">
+          <div class="stat-row">
+            <div class="stat-key">degree</div>
+            <div class="stat-val"><strong>M.Tech</strong> Robotics &amp; Mechatronics<br><span style="font-size:0.7rem;color:var(--muted)">96/110 · Univ. of Pavia · 2022-2025</span></div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-key">current</div>
+            <div class="stat-val"><strong>Motion Control Eng.</strong><br><span style="font-size:0.7rem;color:var(--muted)">Bharat Forge KSMS · Asst. Manager</span></div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-key">speciality</div>
+            <div class="stat-val">
+              <span class="tag">Quadruped</span><span class="tag">SLAM</span><span class="tag">Nav2</span><span class="tag">MIT-Ctrl</span><span class="tag">AMR</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-key">stack</div>
+            <div class="stat-val">
+              <span class="tag">ROS2</span><span class="tag">Python</span><span class="tag">C++</span><span class="tag">OpenCV</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-key">thesis</div>
+            <div class="stat-val"><strong>PAL TIAGo</strong> — Patient Analysis Robot<br><span style="font-size:0.7rem;color:var(--muted)">Nav2 · Gazebo · OpenCV · Ubuntu</span></div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-key">xp</div>
+            <div class="stat-val"><strong>3.5+ yrs</strong> industrial · Italy + India</div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-key">protocols</div>
+            <div class="stat-val"><span class="tag">CAN</span><span class="tag">EtherCAT</span><span class="tag">RS-485</span><span class="tag">Modbus</span></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</header>
+</section>
 
-<section class="section" id="projects">
+<!-- ─── EXPERTISE ─── -->
+<section id="expertise">
   <div class="wrap">
-    <div class="section-head">
-      <div class="section-title">▸ <b>ACTIVE</b> PROJECTS</div>
-      <div class="section-line"></div>
-    </div>
+    <div class="sec-label">Core Expertise</div>
+    <h2 class="sec-title">Engineering Domains</h2>
+    <p class="sec-sub">Six specialised disciplines — from legged robot mechanics to real-time embedded control and industrial IIoT.</p>
 
-    <div class="panels">
+    <div class="specs-grid" style="margin-top:40px;">
 
-      <!-- PROJECT 1 -->
-      <div class="panel">
-        <div class="panel-top">
-          <div>
-            <div class="panel-id">PRJ-002 / SLAM · PATH PLANNING</div>
-            <div class="panel-title"><span class="led live"></span> Path Planning Algorithms</div>
-            <div class="panel-desc">
-              BFS, DFS, Dijkstra, A*, D* Lite, and Potential Field — implemented from scratch
-              with a live in-browser visualizer. Watch each algorithm explore a grid in real time.
-            </div>
-            <div class="panel-tags">
-              <span class="tag">Python</span>
-              <span class="tag">Pygame</span>
-              <span class="tag">Pyodide</span>
-              <span class="tag">SLAM</span>
-              <span class="tag">ADAS</span>
-            </div>
-          </div>
-          <div class="panel-actions">
-            <a class="btn btn-primary" href="projects/path-planning/index.html">▶ Run Live Demo</a>
-            <a class="btn btn-ghost" href="https://github.com/akshaykangude/Path-Planning-Algorithms" target="_blank">Source</a>
-          </div>
+      <div class="spec-cell" data-id="01">
+        <div class="spec-icon cyan">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
-        <div class="status-row">
-          <span><b>7</b> algorithms</span>
-          <span><b>Browser</b> + desktop pygame versions</span>
-          <span><b>MIT</b> licensed</span>
+        <h4>Legged Robotics</h4>
+        <p>12-DOF quadruped kinematics with MIT impedance control. Trot/walk/run gait generation, stance-swing scheduling, whole-body torque commands.</p>
+        <div class="spec-tags">
+          <span class="spec-tag">FK / IK</span><span class="spec-tag">Kp/Kd Tuning</span><span class="spec-tag">GRF Control</span><span class="spec-tag">IMU Orient.</span>
         </div>
       </div>
 
-      <!-- PROJECT 2 -->
-      <div class="panel">
-        <div class="panel-top">
-          <div>
-            <div class="panel-id">PRJ-001 / SENSING · MAPPING</div>
-            <div class="panel-title"><span class="led live"></span> LiDAR SLAM Simulator</div>
-            <div class="panel-desc">
-              A feature-rich 2D LiDAR SLAM simulator with raycasting, occupancy-grid mapping,
-              A* navigation with live obstacle avoidance, proximity safety zones, scan recording,
-              and map save/load — full toolbar UI built in pygame/numpy.
-            </div>
-            <div class="panel-tags">
-              <span class="tag">Python</span>
-              <span class="tag">Pygame</span>
-              <span class="tag">NumPy</span>
-              <span class="tag">Pyodide</span>
-              <span class="tag">SLAM</span>
-            </div>
-          </div>
-          <div class="panel-actions">
-            <a class="btn btn-primary" href="projects/lidar-slam/index.html">▶ Run Live Demo</a>
-            <a class="btn btn-ghost" href="https://github.com/akshaykangude/LiDAR-SLAM-Simulator" target="_blank">Source</a>
-          </div>
+      <div class="spec-cell" data-id="02">
+        <div class="spec-icon lime">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
         </div>
-        <div class="status-row">
-          <span><b>Browser</b> + desktop pygame versions</span>
-          <span><b>A*</b> navigation algorithm</span>
-          <span><b>Configurable</b> FOV &amp; collision</span>
+        <h4>SLAM &amp; Perception</h4>
+        <p>LiDAR-SLAM map building, Nav2 autonomous navigation, multi-modal sensor fusion: IMU + LiDAR + RGB-D + ToF + Ultrasonic in unified environmental awareness.</p>
+        <div class="spec-tags">
+          <span class="spec-tag">ROS2</span><span class="spec-tag">Nav2</span><span class="spec-tag">Point Cloud</span><span class="spec-tag">OpenCV</span>
         </div>
       </div>
 
-      <!-- PROJECT 3 -->
-      <div class="panel">
-        <div class="panel-top">
-          <div>
-            <div class="panel-id">PRJ-003 / KINEMATICS · MOTION CONTROL</div>
-            <div class="panel-title"><span class="led live"></span> Robot Arm Simulator</div>
-            <div class="panel-desc">
-              Real-time 3D N-DOF robot arm simulator with Denavit-Hartenberg FK/IK, damped least-squares
-              inverse kinematics, 5 motion profile types (7-segment jerk-limited S-curve, trapezoidal,
-              sinusoidal…), editable segment percentages, live Pos/Vel/Acc graphs, and full JSON
-              robot config — no code changes needed to swap arms.
-            </div>
-            <div class="panel-tags">
-              <span class="tag">Python</span>
-              <span class="tag">Pygame</span>
-              <span class="tag">OpenGL</span>
-              <span class="tag">NumPy</span>
-              <span class="tag">DH Parameters</span>
-              <span class="tag">IK / FK</span>
-              <span class="tag">Motion Profiles</span>
-            </div>
-          </div>
-          <div class="panel-actions">
-            <a class="btn btn-primary" href="projects/robot-arm/index.html">▶ Run Live Demo</a>
-            <a class="btn btn-ghost" href="https://github.com/akshaykangude/Robot_Arm_Simulator" target="_blank">Source</a>
-          </div>
+      <div class="spec-cell" data-id="03">
+        <div class="spec-icon amber">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
         </div>
-        <div class="status-row">
-          <span><b>5</b> motion profile types</span>
-          <span><b>3-DOF &amp; 6-DOF</b> example configs</span>
-          <span><b>Levenberg-Marquardt</b> IK solver</span>
-          <span><b>MIT</b> licensed</span>
+        <h4>AMR &amp; Industrial</h4>
+        <p>ROS2-based AMR and forklift deployment in live industrial environments. Multi-axis closed-loop control with encoder feedback, drive tuning, real-time sync.</p>
+        <div class="spec-tags">
+          <span class="spec-tag">EtherCAT</span><span class="spec-tag">CAN bus</span><span class="spec-tag">Motion Profile</span>
+        </div>
+      </div>
+
+      <div class="spec-cell" data-id="04">
+        <div class="spec-icon cyan">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h4>Motion Control</h4>
+        <p>7-segment jerk-limited profiles, trapezoidal, S-curve, and sinusoidal trajectories. VFFS/HFFS machine programming and multi-axis servo commissioning.</p>
+        <div class="spec-tags">
+          <span class="spec-tag">S-Curve</span><span class="spec-tag">Jerk-Limited</span><span class="spec-tag">PLC/IEC</span><span class="spec-tag">Trio MC</span>
+        </div>
+      </div>
+
+      <div class="spec-cell" data-id="05">
+        <div class="spec-icon lime">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg>
+        </div>
+        <h4>Embedded Systems</h4>
+        <p>ESP32, Arduino ATmega Industrial, Raspberry Pi 4. Relay drivers, optocoupler isolation, motor driver interfaces. CAN, RS-485, Modbus, EtherCAT protocol stacks.</p>
+        <div class="spec-tags">
+          <span class="spec-tag">ESP32</span><span class="spec-tag">RPi 4</span><span class="spec-tag">CAN</span><span class="spec-tag">RS-485</span>
+        </div>
+      </div>
+
+      <div class="spec-cell" data-id="06">
+        <div class="spec-icon amber">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <h4>IIoT &amp; SCADA</h4>
+        <p>Distributed real-time monitoring across industrial controllers. Python-based multi-controller comms, FT Optix web HMI, Siemens TIA Portal S7-1200 integration.</p>
+        <div class="spec-tags">
+          <span class="spec-tag">TIA Portal</span><span class="spec-tag">PROFINET</span><span class="spec-tag">snap7</span><span class="spec-tag">Flask</span>
         </div>
       </div>
 
@@ -306,32 +736,593 @@
   </div>
 </section>
 
-<section class="section" id="upcoming">
+<!-- ─── PROJECTS ─── -->
+<section id="projects">
   <div class="wrap">
-    <div class="section-head">
-      <div class="section-title">▸ <b>UPCOMING</b> / IN THE QUEUE</div>
-      <div class="section-line"></div>
-    </div>
+    <div class="sec-label">Live Demos</div>
+    <h2 class="sec-title">Active Simulations</h2>
+    <p class="sec-sub">Three browser-native robotics simulators running in real time — built from the same algorithms used in production systems.</p>
 
-    <div class="panels">
-      <div class="future-slot">
-        <span>PRJ-004 — Quadruped Gait Generator <span style="color:var(--text-faint)">// trot · crawl · bound gait timing</span></span>
-        <span style="color:var(--amber);">PLANNED</span>
+    <div class="projects-grid">
+
+      <!-- PATH PLANNING -->
+      <article class="proj-card">
+        <div class="proj-thumb">
+          <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+            <rect width="320" height="180" fill="#0c1627"/>
+            <!-- grid -->
+            <defs>
+              <pattern id="pg" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0,210,255,0.06)" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="320" height="180" fill="url(#pg)"/>
+            <!-- walls -->
+            <rect x="80" y="40" width="20" height="80" fill="rgba(0,210,255,0.15)" rx="2"/>
+            <rect x="160" y="60" width="20" height="80" fill="rgba(0,210,255,0.15)" rx="2"/>
+            <rect x="220" y="20" width="20" height="60" fill="rgba(0,210,255,0.15)" rx="2"/>
+            <!-- A* path -->
+            <polyline points="20,160 40,140 60,120 100,100 120,80 140,60 180,40 200,40 220,40 260,40 280,40 280,80 280,120 280,140" fill="none" stroke="#39ff7e" stroke-width="2" stroke-dasharray="4,2" opacity="0.9"/>
+            <!-- explored nodes -->
+            <circle cx="40" cy="140" r="3" fill="rgba(0,210,255,0.4)"/>
+            <circle cx="60" cy="120" r="3" fill="rgba(0,210,255,0.4)"/>
+            <circle cx="100" cy="100" r="3" fill="rgba(0,210,255,0.4)"/>
+            <circle cx="120" cy="80" r="3" fill="rgba(0,210,255,0.4)"/>
+            <circle cx="140" cy="60" r="3" fill="rgba(0,210,255,0.4)"/>
+            <!-- start -->
+            <circle cx="20" cy="160" r="6" fill="none" stroke="#00d2ff" stroke-width="2"/>
+            <circle cx="20" cy="160" r="3" fill="#00d2ff"/>
+            <!-- goal -->
+            <circle cx="280" cy="140" r="6" fill="none" stroke="#39ff7e" stroke-width="2"/>
+            <circle cx="280" cy="140" r="3" fill="#39ff7e"/>
+            <!-- label -->
+            <text x="10" y="16" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="9">A* · DIJKSTRA · RRT*</text>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-id">PRJ-001 / Path Planning</div>
+          <h3 class="proj-title">Path Planning Visualizer</h3>
+          <p class="proj-desc">Interactive browser visualizer covering BFS, DFS, Dijkstra, A*, RRT, RRT*, D* Lite, and Potential Field — animated step-by-step on a configurable obstacle grid.</p>
+          <div class="proj-chips">
+            <span class="proj-chip">Python / Pyodide</span>
+            <span class="proj-chip">A* · RRT*</span>
+            <span class="proj-chip">D* Lite</span>
+            <span class="proj-chip">Potential Field</span>
+          </div>
+          <div class="proj-links">
+            <a class="proj-link demo" href="./projects/path-planning/index.html" target="_blank">▶ Run Demo</a>
+            <a class="proj-link src" href="https://github.com/akshaykangude" target="_blank">GitHub</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- LIDAR SLAM -->
+      <article class="proj-card">
+        <div class="proj-thumb">
+          <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+            <rect width="320" height="180" fill="#0c1627"/>
+            <!-- occupancy grid -->
+            <defs>
+              <pattern id="occ" width="8" height="8" patternUnits="userSpaceOnUse">
+                <rect width="8" height="8" fill="none" stroke="rgba(0,210,255,0.04)" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="320" height="180" fill="url(#occ)"/>
+            <!-- mapped walls -->
+            <rect x="60" y="30" width="8" height="100" fill="rgba(0,210,255,0.5)" rx="1"/>
+            <rect x="60" y="30" width="180" height="8" fill="rgba(0,210,255,0.5)" rx="1"/>
+            <rect x="240" y="30" width="8" height="80" fill="rgba(0,210,255,0.5)" rx="1"/>
+            <rect x="120" y="80" width="60" height="8" fill="rgba(0,210,255,0.4)" rx="1"/>
+            <!-- LiDAR beams -->
+            <line x1="160" y1="120" x2="60" y2="60" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
+            <line x1="160" y1="120" x2="80" y2="30" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
+            <line x1="160" y1="120" x2="160" y2="30" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
+            <line x1="160" y1="120" x2="240" y2="60" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
+            <line x1="160" y1="120" x2="240" y2="100" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
+            <line x1="160" y1="120" x2="200" y2="150" stroke="rgba(0,210,255,0.2)" stroke-width="0.8"/>
+            <!-- robot body -->
+            <circle cx="160" cy="120" r="14" fill="rgba(0,210,255,0.08)" stroke="#00d2ff" stroke-width="1.5"/>
+            <circle cx="160" cy="120" r="5" fill="#00d2ff" opacity="0.9"/>
+            <!-- direction -->
+            <line x1="160" y1="120" x2="160" y2="100" stroke="#39ff7e" stroke-width="1.5"/>
+            <!-- path history -->
+            <polyline points="100,150 120,140 140,130 160,120" fill="none" stroke="rgba(57,255,126,0.35)" stroke-width="1.5" stroke-dasharray="3,2"/>
+            <text x="10" y="16" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="9">LIDAR SLAM · BUG2 · OCCUPANCY GRID</text>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-id">PRJ-002 / Sensing · Mapping</div>
+          <h3 class="proj-title">LiDAR SLAM Simulator</h3>
+          <p class="proj-desc">Full 2D LiDAR SLAM with occupancy-grid mapping, Bug2 reactive navigation, configurable FOV, collision detection, map save/load — all running live in browser.</p>
+          <div class="proj-chips">
+            <span class="proj-chip">Occupancy Grid</span>
+            <span class="proj-chip">Bug2 Nav</span>
+            <span class="proj-chip">A* Path</span>
+            <span class="proj-chip">NumPy / Pygame</span>
+          </div>
+          <div class="proj-links">
+            <a class="proj-link demo" href="./projects/lidar-slam/index.html" target="_blank">▶ Run Demo</a>
+            <a class="proj-link src" href="https://github.com/akshaykangude" target="_blank">GitHub</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ROBOT ARM -->
+      <article class="proj-card">
+        <div class="proj-thumb">
+          <svg class="thumb-canvas" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+            <rect width="320" height="180" fill="#0c1627"/>
+            <!-- coordinate axes -->
+            <line x1="30" y1="150" x2="80" y2="150" stroke="rgba(255,80,80,0.5)" stroke-width="1.5"/>
+            <line x1="30" y1="150" x2="30" y2="100" stroke="rgba(80,255,80,0.5)" stroke-width="1.5"/>
+            <text x="83" y="154" fill="rgba(255,80,80,0.6)" font-size="10" font-family="monospace">X</text>
+            <text x="22" y="97" fill="rgba(80,255,80,0.6)" font-size="10" font-family="monospace">Z</text>
+            <!-- base -->
+            <rect x="145" y="152" width="30" height="14" fill="rgba(0,210,255,0.3)" rx="2"/>
+            <!-- link 1 -->
+            <line x1="160" y1="152" x2="130" y2="120" stroke="#00d2ff" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="160" cy="152" r="7" fill="none" stroke="#00d2ff" stroke-width="2"/>
+            <!-- link 2 -->
+            <line x1="130" y1="120" x2="120" y2="80" stroke="#00d2ff" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="130" cy="120" r="6" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- link 3 -->
+            <line x1="120" y1="80" x2="160" y2="55" stroke="#00d2ff" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="120" cy="80" r="5" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- link 4 -->
+            <line x1="160" y1="55" x2="195" y2="40" stroke="#00d2ff" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="160" cy="55" r="4" fill="none" stroke="#00d2ff" stroke-width="1.5"/>
+            <!-- end effector -->
+            <line x1="195" y1="40" x2="205" y2="32" stroke="#39ff7e" stroke-width="2"/>
+            <line x1="195" y1="40" x2="205" y2="48" stroke="#39ff7e" stroke-width="2"/>
+            <circle cx="195" cy="40" r="5" fill="rgba(57,255,126,0.3)" stroke="#39ff7e" stroke-width="1.5"/>
+            <!-- trajectory arc -->
+            <path d="M 195 40 Q 240 20 260 60 Q 270 90 250 110" fill="none" stroke="rgba(57,255,126,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+            <!-- DH labels -->
+            <text x="220" y="16" fill="rgba(0,210,255,0.5)" font-family="monospace" font-size="9">FK / IK · DH PARAMS</text>
+            <!-- joint labels -->
+            <text x="165" y="158" fill="rgba(0,210,255,0.4)" font-family="monospace" font-size="7">J1</text>
+            <text x="135" y="118" fill="rgba(0,210,255,0.4)" font-family="monospace" font-size="7">J2</text>
+            <text x="125" y="78" fill="rgba(0,210,255,0.4)" font-family="monospace" font-size="7">J3</text>
+            <text x="165" y="53" fill="rgba(0,210,255,0.4)" font-family="monospace" font-size="7">J4</text>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-id">PRJ-003 / Kinematics · Control</div>
+          <h3 class="proj-title">Robot Arm Simulator</h3>
+          <p class="proj-desc">N-DOF robot arm with full FK/IK via Denavit-Hartenberg parameters. Real-time motion profiling (7-seg, S-curve, trapezoidal), live Pos/Vel/Acc graphs, JSON robot config.</p>
+          <div class="proj-chips">
+            <span class="proj-chip">DH Parameters</span>
+            <span class="proj-chip">S-Curve</span>
+            <span class="proj-chip">7-Seg Jerk</span>
+            <span class="proj-chip">Three.js / WebGL</span>
+          </div>
+          <div class="proj-links">
+            <a class="proj-link demo" href="./projects/robot-arm/index.html" target="_blank">▶ Run Demo</a>
+            <a class="proj-link src" href="https://github.com/akshaykangude" target="_blank">GitHub</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── EXPERIENCE ─── -->
+<section id="experience">
+  <div class="wrap">
+    <div class="sec-label">Work History</div>
+    <h2 class="sec-title">Professional Experience</h2>
+    <p class="sec-sub">From assembly-line motion control to quadruped locomotion and autonomous systems — production deployments across India and Italy.</p>
+
+    <div class="exp-grid">
+      <div class="exp-tabs">
+        <div class="exp-tab active" data-tab="bfksms">
+          <span class="co">Bharat Forge KSMS</span>
+          <span class="role">MOTION CONTROL ENG.</span>
+          <span class="period">Jul 2025 – Present</span>
+        </div>
+        <div class="exp-tab" data-tab="enlive">
+          <span class="co">Enlive Automation</span>
+          <span class="role">IIOT &amp; AUTOMATION ENG.</span>
+          <span class="period">Nov 2024 – Jun 2025</span>
+        </div>
+        <div class="exp-tab" data-tab="trio">
+          <span class="co">Trio Motion Tech.</span>
+          <span class="role">APPLICATION ENGINEER</span>
+          <span class="period">Jul 2020 – Feb 2022</span>
+        </div>
+        <div class="exp-tab" data-tab="thesis">
+          <span class="co">Univ. of Pavia</span>
+          <span class="role">M.TECH THESIS</span>
+          <span class="period">2022 – 2025</span>
+        </div>
       </div>
-      <div class="future-slot">
-        <span>PRJ-005 — Siemens S7-1200 PLC Dashboard <span style="color:var(--text-faint)">// Flask · live I/O monitoring</span></span>
-        <span style="color:var(--amber);">PLANNED</span>
+
+      <div class="exp-content active" id="tab-bfksms">
+        <h3>Motion Control Engineer — Asst. Manager</h3>
+        <p class="exp-meta">BHARAT FORGE KSMS · MAHARASHTRA, INDIA · JUL 2025 – PRESENT</p>
+        <ul class="exp-items">
+          <li><div><strong>12-DOF Quadruped Locomotion</strong> — FK/IK analytical solver for sagittal/lateral planes; MIT impedance control with Kp/Kd tuning across all 12 joints for compliant terrain-adaptive contact.</div></li>
+          <li><div><strong>Gait Library</strong> — Walk, trot, run with stance/swing scheduling, foot-trajectory generation, diagonal pair sync, dynamic bounding with flight phase.</div></li>
+          <li><div><strong>IMU-Based Body Orientation</strong> — Real-time pitch, roll, yaw compensation; torso levelling on uneven terrain in standing and moving modes.</div></li>
+          <li><div><strong>LiDAR-SLAM + Nav2</strong> — Autonomous map building, localisation, obstacle-aware path planning in unstructured environments with ROS2.</div></li>
+          <li><div><strong>Multi-Modal Sensor Fusion</strong> — ToF, Ultrasonic, Proximity, RGB-D, LiDAR unified into single environmental awareness layer with real-time sync.</div></li>
+          <li><div><strong>OpenCV Aiming System</strong> — Human detection, object tracking, depth estimation, closed-loop visual servoing for sensor-head orientation.</div></li>
+          <li><div><strong>AMR Fleet Deployment</strong> — ROS2-based AMR and forklift systems in live factory floors; multi-axis closed-loop control with encoder feedback and real-time drive tuning.</div></li>
+        </ul>
+      </div>
+
+      <div class="exp-content" id="tab-enlive">
+        <h3>IIoT &amp; Automation Engineer</h3>
+        <p class="exp-meta">ENLIVE AUTOMATION S.R.L · ITALY · NOV 2024 – JUN 2025</p>
+        <ul class="exp-items">
+          <li><div><strong>Scalable IIoT Systems</strong> — Real-time monitoring and control of multiple industrial controllers across distributed plants.</div></li>
+          <li><div><strong>Distributed Communication Architecture</strong> — Python-based multi-controller comms with centralised servers; web HMI via FT Optix.</div></li>
+          <li><div><strong>PLC / SCADA / Robotics Integration</strong> — End-to-end automation solutions from design through production deployment.</div></li>
+          <li><div><strong>Multi-Device Synchronisation</strong> — Real-time data flow management, communication latency control, and distributed system optimisation.</div></li>
+        </ul>
+      </div>
+
+      <div class="exp-content" id="tab-trio">
+        <h3>Application Engineer</h3>
+        <p class="exp-meta">TRIO MOTION TECHNOLOGY INDIA · JUL 2020 – FEB 2022</p>
+        <ul class="exp-items">
+          <li><div><strong>VFFS / HFFS Machine Programming</strong> — Full motion controller programs for vertical and horizontal form fill seal packaging machines with HMI interfaces.</div></li>
+          <li><div><strong>Multi-Axis Motion Control</strong> — Real-time control for conveyors, packaging, and material handling; coordinated drive profiles under hard real-time constraints.</div></li>
+          <li><div><strong>Electronics Testing Kit</strong> — Solo engineering: designed enclosure in CAD, selected all components, wired complete circuit covering CAN, RS-485, RS-232, Digital/Analog I/O, HMI CAN I/O. <strong style="color:var(--lime)">75% reduction in fault diagnosis time.</strong></div></li>
+          <li><div><strong>Field Commissioning</strong> — Motion controllers, servo drives and robotic systems tested and deployed at client sites; resolved hardware/software/comms issues live.</div></li>
+        </ul>
+      </div>
+
+      <div class="exp-content" id="tab-thesis">
+        <h3>Master Thesis — PAL TIAGo Patient Analysis Robot</h3>
+        <p class="exp-meta">UNIVERSITY OF PAVIA · ROS2 · NAV2 · GAZEBO · OPENCV · 2024-2025</p>
+        <ul class="exp-items">
+          <li><div><strong>Autonomous Patient Analysis</strong> — Designed full behaviour logic for TIAGo robot to perform patient assessment tasks autonomously.</div></li>
+          <li><div><strong>Nav2 Navigation Stack</strong> — Integrated ROS2 + Nav2 for autonomous room traversal, waypoint following, and obstacle avoidance in hospital-like environment.</div></li>
+          <li><div><strong>Computer Vision Pipeline</strong> — OpenCV-based perception for patient detection, posture analysis, and feedback generation.</div></li>
+          <li><div><strong>Gazebo Simulation</strong> — Full system validated in Gazebo simulation with real-world deployment architecture designed for clinical deployment.</div></li>
+          <li><div>Scored <strong style="color:var(--lime)">96/110</strong> — awarded M.Tech in Industrial Automation, Robotics &amp; Mechatronics Engineering.</div></li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ─── TECH STACK ─── -->
+<section id="tech">
+  <div class="wrap">
+    <div class="sec-label">Technology</div>
+    <h2 class="sec-title">Technical Stack</h2>
+    <p class="sec-sub">Tools, frameworks, and hardware deployed in production robotics systems and research.</p>
+
+    <div class="tech-cols">
+      <div class="tech-col">
+        <div class="tech-col-title">Robotics &amp; Autonomy</div>
+        <div class="tech-item">ROS2 / Nav2<div class="tech-bar-wrap"><div class="tech-bar" style="width:95%"></div></div></div>
+        <div class="tech-item">SLAM (LiDAR)<div class="tech-bar-wrap"><div class="tech-bar" style="width:90%"></div></div></div>
+        <div class="tech-item">Gazebo / RViz<div class="tech-bar-wrap"><div class="tech-bar" style="width:85%"></div></div></div>
+        <div class="tech-item">FK / IK (DH)<div class="tech-bar-wrap"><div class="tech-bar" style="width:92%"></div></div></div>
+        <div class="tech-item">Motion Planning<div class="tech-bar-wrap"><div class="tech-bar" style="width:88%"></div></div></div>
+      </div>
+      <div class="tech-col">
+        <div class="tech-col-title">Programming</div>
+        <div class="tech-item">Python<div class="tech-bar-wrap"><div class="tech-bar lime" style="width:96%"></div></div></div>
+        <div class="tech-item">C / C++<div class="tech-bar-wrap"><div class="tech-bar lime" style="width:80%"></div></div></div>
+        <div class="tech-item">MATLAB<div class="tech-bar-wrap"><div class="tech-bar lime" style="width:75%"></div></div></div>
+        <div class="tech-item">JavaScript<div class="tech-bar-wrap"><div class="tech-bar lime" style="width:70%"></div></div></div>
+        <div class="tech-item">Embedded C<div class="tech-bar-wrap"><div class="tech-bar lime" style="width:85%"></div></div></div>
+      </div>
+      <div class="tech-col">
+        <div class="tech-col-title">Control &amp; Protocols</div>
+        <div class="tech-item">MIT Impedance<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:90%"></div></div></div>
+        <div class="tech-item">PLC / TIA Portal<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:82%"></div></div></div>
+        <div class="tech-item">CAN / EtherCAT<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:88%"></div></div></div>
+        <div class="tech-item">RS-485 / Modbus<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:85%"></div></div></div>
+        <div class="tech-item">IMU Fusion<div class="tech-bar-wrap"><div class="tech-bar amber" style="width:87%"></div></div></div>
+      </div>
+      <div class="tech-col">
+        <div class="tech-col-title">Hardware &amp; Tools</div>
+        <div class="tech-item">ESP32 / RPi 4<div class="tech-bar-wrap"><div class="tech-bar" style="width:90%"></div></div></div>
+        <div class="tech-item">OpenCV<div class="tech-bar-wrap"><div class="tech-bar" style="width:85%"></div></div></div>
+        <div class="tech-item">SolidWorks / CAD<div class="tech-bar-wrap"><div class="tech-bar" style="width:75%"></div></div></div>
+        <div class="tech-item">Git / GitHub<div class="tech-bar-wrap"><div class="tech-bar" style="width:92%"></div></div></div>
+        <div class="tech-item">FT Optix / SCADA<div class="tech-bar-wrap"><div class="tech-bar" style="width:78%"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DOCUMENTS ─── -->
+<section id="resume">
+  <div class="wrap">
+    <div class="sec-label">Documents</div>
+    <h2 class="sec-title">Resume &amp; Credentials</h2>
+    <p class="sec-sub">Downloadable files — resume, master's thesis, and professional certifications.</p>
+
+    <div class="docs-grid">
+      <a class="doc-card" href="./documents/resume.pdf" target="_blank" rel="noopener">
+        <div class="doc-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="doc-label">Resume · PDF</div>
+        <div class="doc-title">Full Resume</div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">Robotics Engineer — 3.5 yrs experience · M.Tech Pavia</p>
+        <div class="doc-path">documents/resume.pdf ↗</div>
+      </a>
+      <a class="doc-card" href="./documents/resume.docx" target="_blank" rel="noopener">
+        <div class="doc-icon" style="color:var(--lime);background:rgba(57,255,126,0.07);border-color:rgba(57,255,126,0.2);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="doc-label">Resume · DOCX</div>
+        <div class="doc-title">Resume (Word)</div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">Editable Word format for recruiter submissions</p>
+        <div class="doc-path">documents/resume.docx ↗</div>
+      </a>
+      <a class="doc-card" href="./documents/thesis.pdf" target="_blank" rel="noopener">
+        <div class="doc-icon" style="color:var(--amber);background:rgba(255,183,0,0.07);border-color:rgba(255,183,0,0.2);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <div class="doc-label">Master's Thesis</div>
+        <div class="doc-title">TIAGo Patient Robot</div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">ROS2 · Nav2 · OpenCV · Gazebo · 96/110</p>
+        <div class="doc-path">documents/thesis.pdf ↗</div>
+      </a>
+      <a class="doc-card" href="./documents/certificates/plc.pdf" target="_blank" rel="noopener">
+        <div class="doc-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div class="doc-label">Certificate</div>
+        <div class="doc-title">PLC Programming</div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">Siemens TIA Portal · S7-1200 · PROFINET</p>
+        <div class="doc-path">certificates/plc.pdf ↗</div>
+      </a>
+      <a class="doc-card" href="./documents/certificates/ros2.pdf" target="_blank" rel="noopener">
+        <div class="doc-icon" style="color:var(--lime);background:rgba(57,255,126,0.07);border-color:rgba(57,255,126,0.2);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>
+        </div>
+        <div class="doc-label">Certificate</div>
+        <div class="doc-title">ROS2 Robotics</div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">Robot Operating System 2 · Nav2 · URDF</p>
+        <div class="doc-path">certificates/ros2.pdf ↗</div>
+      </a>
+      <a class="doc-card" href="./documents/certificates/scada.pdf" target="_blank" rel="noopener">
+        <div class="doc-icon" style="color:var(--amber);background:rgba(255,183,0,0.07);border-color:rgba(255,183,0,0.2);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="doc-label">Certificate</div>
+        <div class="doc-title">SCADA Systems</div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-top:6px;">Industrial HMI · FT Optix · IIoT Architecture</p>
+        <div class="doc-path">certificates/scada.pdf ↗</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── GALLERY ─── -->
+<section id="gallery">
+  <div class="wrap">
+    <div class="sec-label">Lab Archive</div>
+    <h2 class="sec-title">Project Gallery</h2>
+    <p class="sec-sub">Photos and demos from robotics builds, PLC setups, SCADA deployments, and thesis work.</p>
+
+    <div class="gallery-layout">
+      <div class="gallery-filters">
+        <button class="gal-filter active" data-cat="all">ALL</button>
+        <button class="gal-filter" data-cat="robotics">ROBOTICS</button>
+        <button class="gal-filter" data-cat="plc">PLC</button>
+        <button class="gal-filter" data-cat="scada">SCADA</button>
+        <button class="gal-filter" data-cat="thesis">THESIS</button>
+      </div>
+      <div class="gallery-view">
+        <div class="media-mosaic" id="mediaMosaic">
+          <div class="media-tile" data-cat="robotics"><img src="./gallery/robotics/robot1.jpg" alt="Robotics build" loading="lazy"><div class="media-tile-label">robot1.jpg</div></div>
+          <div class="media-tile" data-cat="robotics"><img src="./gallery/robotics/robot2.jpg" alt="Robotics build 2" loading="lazy"><div class="media-tile-label">robot2.jpg</div></div>
+          <div class="media-tile" data-cat="robotics"><img src="./gallery/robotics/robot3.jpg" alt="Robotics build 3" loading="lazy"><div class="media-tile-label">robot3.jpg</div></div>
+          <div class="media-tile" data-cat="robotics"><video controls preload="none" style="width:100%;height:100%;object-fit:cover"><source src="./gallery/robotics/robotics_demo.mp4" type="video/mp4"></video><div class="media-tile-label">robotics_demo.mp4</div></div>
+          <div class="media-tile" data-cat="plc"><img src="./gallery/plc/plc1.jpg" alt="PLC build" loading="lazy"><div class="media-tile-label">plc1.jpg</div></div>
+          <div class="media-tile" data-cat="plc"><img src="./gallery/plc/plc2.jpg" alt="PLC build 2" loading="lazy"><div class="media-tile-label">plc2.jpg</div></div>
+          <div class="media-tile" data-cat="plc"><video controls preload="none" style="width:100%;height:100%;object-fit:cover"><source src="./gallery/plc/plc_demo.mp4" type="video/mp4"></video><div class="media-tile-label">plc_demo.mp4</div></div>
+          <div class="media-tile" data-cat="scada"><img src="./gallery/scada/scada1.jpg" alt="SCADA interface" loading="lazy"><div class="media-tile-label">scada1.jpg</div></div>
+          <div class="media-tile" data-cat="scada"><img src="./gallery/scada/scada2.jpg" alt="SCADA interface 2" loading="lazy"><div class="media-tile-label">scada2.jpg</div></div>
+          <div class="media-tile" data-cat="thesis"><div class="media-tile-label" style="opacity:1;background:var(--surface);">📋 Thesis visuals<br>coming soon</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── JOURNEY ─── -->
+<section id="journey">
+  <div class="wrap">
+    <div class="sec-label">Career Timeline</div>
+    <h2 class="sec-title">The Journey</h2>
+    <p class="sec-sub">From first principles to production robotics — the road from Pune to Pavia to industrial deployment.</p>
+
+    <div class="timeline-wrap" id="timelineWrap">
+
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-top">
+            <span class="tl-date">02 Nov 1999</span>
+            <span class="tl-badge">Origin</span>
+          </div>
+          <h4>Born — Pune, Maharashtra</h4>
+          <p>The beginning of a journey that would cross continents to build machines that walk, see, and navigate.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot edu"></div>
+        <div class="tl-card">
+          <div class="tl-top">
+            <span class="tl-date edu">2017 – 2021</span>
+            <span class="tl-badge">Degree</span>
+          </div>
+          <h4>B.Tech — Mechatronics Engineering</h4>
+          <p>Symbiosis Skills &amp; Professional University, Pune · CGPA 8.5/10. Built the mechanical, electrical, and software foundations of robotics. Final year: Shoe Sanitation Machine (SolidWorks · Arduino · Mobile App).</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot work"></div>
+        <div class="tl-card">
+          <div class="tl-top">
+            <span class="tl-date work">Jul 2020 – Feb 2022</span>
+            <span class="tl-badge">Industry</span>
+          </div>
+          <h4>Application Engineer — Trio Motion Technology</h4>
+          <p>First industry role: programmed VFFS/HFFS machines, commissioned servo systems, built the Electronics Testing Kit that reduced fault diagnosis time by 75%.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot edu"></div>
+        <div class="tl-card">
+          <div class="tl-top">
+            <span class="tl-date edu">2022 – 2025</span>
+            <span class="tl-badge">Master's</span>
+          </div>
+          <h4>M.Tech — Robotics &amp; Mechatronics · University of Pavia, Italy</h4>
+          <p>Deep dive into autonomous systems, legged robotics, SLAM, perception, and motion planning. Score: 96/110. Lived and studied in Italy — exposure to European industrial robotics ecosystem.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot edu"></div>
+        <div class="tl-card">
+          <div class="tl-top">
+            <span class="tl-date edu">2024 – 2025</span>
+            <span class="tl-badge">Thesis</span>
+          </div>
+          <h4>Master Thesis — PAL TIAGo Patient Analysis Robot</h4>
+          <p>Designed and validated a full autonomous patient-analysis pipeline on the PAL Robotics TIAGo platform using ROS2, Nav2, OpenCV, and Gazebo. Bridges clinical robotics and autonomous systems research.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot work"></div>
+        <div class="tl-card">
+          <div class="tl-top">
+            <span class="tl-date work">Nov 2024 – Jun 2025</span>
+            <span class="tl-badge">Industry · Italy</span>
+          </div>
+          <h4>IIoT &amp; Automation Engineer — Enlive Automation, Italy</h4>
+          <p>Distributed IIoT systems, multi-controller architectures, SCADA/HMI integration across Italian industrial plants. Gained European automation deployment experience.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot work"></div>
+        <div class="tl-card">
+          <div class="tl-top">
+            <span class="tl-date work">Jul 2025 – Present</span>
+            <span class="tl-badge">Current</span>
+          </div>
+          <h4>Motion Control Engineer — Bharat Forge KSMS</h4>
+          <p>Leading quadruped robotics (12-DOF locomotion, MIT impedance control, gait library), AMR/AGV development, LiDAR-SLAM navigation, and embedded electronics subsystems. Asst. Manager level, Maharashtra.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-card" style="border-color: rgba(57,255,126,0.25); box-shadow: 0 0 20px rgba(57,255,126,0.05);">
+          <div class="tl-top">
+            <span class="tl-date" style="color:var(--lime);">Jun 2026</span>
+            <span class="tl-badge" style="border-color:rgba(57,255,126,0.3);color:var(--lime);">Portfolio</span>
+          </div>
+          <h4>This Portfolio — Live</h4>
+          <p>Three browser-native robotics simulators, a full career archive, and a lab-grade design system — all deployed as a single-page GitHub Pages site.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
 <footer>
-  <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; width:100%;">
-    <span>© 2026 Akshay — Industrial Automation &amp; Robotics</span>
-    <span><a href="https://github.com/akshaykangude" target="_blank">github.com/akshaykangude</a></span>
+  <div class="wrap footer-inner">
+    <span>Akshay Kangude · M.Tech Robotics · akshaykangude35@gmail.com</span>
+    <div class="footer-links">
+      <a href="https://github.com/akshaykangude" target="_blank">GitHub</a>
+      <a href="https://linkedin.com/in/akshay-kangude-7057777106" target="_blank">LinkedIn</a>
+      <a href="./documents/resume.pdf" target="_blank">Resume</a>
+      <a href="mailto:akshaykangude35@gmail.com">Email</a>
+    </div>
   </div>
 </footer>
 
+<script>
+  /* ── Experience tabs ── */
+  const tabs = document.querySelectorAll('.exp-tab');
+  const contents = document.querySelectorAll('.exp-content');
+  const tabMap = { bfksms:'tab-bfksms', enlive:'tab-enlive', trio:'tab-trio', thesis:'tab-thesis' };
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      const key = tab.dataset.tab;
+      document.getElementById(tabMap[key])?.classList.add('active');
+    });
+  });
+
+  /* ── Gallery filter ── */
+  const galFilters = document.querySelectorAll('.gal-filter');
+  const tiles = document.querySelectorAll('.media-tile');
+
+  galFilters.forEach(btn => {
+    btn.addEventListener('click', () => {
+      galFilters.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = btn.dataset.cat;
+      tiles.forEach(tile => {
+        tile.style.display = (cat === 'all' || tile.dataset.cat === cat) ? '' : 'none';
+      });
+    });
+  });
+
+  /* ── On image load: hide placeholder label ── */
+  document.querySelectorAll('.media-tile img, .media-tile video').forEach(el => {
+    const label = el.closest('.media-tile')?.querySelector('.media-tile-label');
+    if (!label) return;
+    const hide = () => { label.style.display = 'none'; };
+    if (el.tagName === 'IMG') {
+      if (el.complete && el.naturalWidth > 0) hide();
+      else el.addEventListener('load', hide);
+    } else {
+      el.addEventListener('loadeddata', hide);
+    }
+  });
+
+  /* ── Timeline scroll reveal ── */
+  const tlObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        const delay = [...document.querySelectorAll('.tl-item')].indexOf(e.target) * 80;
+        e.target.style.transitionDelay = delay + 'ms';
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.tl-item').forEach(el => tlObserver.observe(el));
+
+  /* ── Nav active link highlight on scroll ── */
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+  const scrollSpy = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.style.color = '');
+        const link = document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+        if (link) link.style.color = 'var(--cyan)';
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => scrollSpy.observe(s));
+</script>
 </body>
 </html>
